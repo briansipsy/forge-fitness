@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="FORGE" />
+<meta name="theme-color" content="#0a0a0f" />
+<title>FORGE Fitness</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body { background: #0a0a0f; color: #e8e8f0; font-family: 'DM Sans', sans-serif; overscroll-behavior: none; }
+  input, textarea, button { font-family: 'DM Sans', sans-serif; outline: none; }
+  ::-webkit-scrollbar { display: none; }
+  textarea { resize: none; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<script src="https://unpkg.com/recharts@2.8.0/umd/Recharts.js"></script>
+<script src="https://unpkg.com/lucide-react@0.263.1/dist/umd/lucide-react.min.js"></script>
+
+<script>
+// localStorage-based storage shim (mirrors Claude storage API)
+window.storage = {
+  get: async (key) => {
+    const val = localStorage.getItem('forge_' + key);
+    if (val === null) throw new Error('Key not found: ' + key);
+    return { key, value: val };
+  },
+  set: async (key, value) => {
+    localStorage.setItem('forge_' + key, value);
+    return { key, value };
+  },
+  delete: async (key) => {
+    localStorage.removeItem('forge_' + key);
+    return { key, deleted: true };
+  }
+};
+</script>
+
+<script type="text/babel">
+const { useState, useEffect, useCallback } = React;
+const { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } = Recharts;
+const { Activity, BarChart2, BookOpen, Settings, ChevronDown, ChevronUp, Check,
+        RefreshCw, Zap, TrendingDown, AlertCircle, ChevronRight } = LucideReact;
+
+// ─── WORKOUT DATA ─────────────────────────────────────────────────────────────
+const STRENGTH_A = {
+  id: "A", label: "Strength A", focus: "Upper Body / Core / Taper",
+  warmup: [
+    { name: "Band Pull-Apart", sets: "2x20", band: "Yellow", cue: "Hold band at shoulder width, pull apart horizontally until fully stretched. Resets posture." },
+    { name: "Thoracic Foam Roll", sets: "2 min", band: "No band", cue: "Lie with roller at mid-back. Extend over it, pause at tight spots. Works up and down thoracic spine." },
+  ],
+  exercises: [
+    { name: "Self-Anchored Band Press", sets: 3, reps: 12, band: "Green → Red", cue: "Loop band behind shoulder blades. Hold handles at chest, press forward and slightly together. Slight forward lean for more chest activation.", muscles: "Chest, anterior deltoid, triceps" },
+    { name: "Banded Bent-Over Row", sets: 3, reps: 12, band: "Red or Grey", cue: "Stand on band. Hinge 45°, flat back. Pull handles to lower ribcage, drive elbows back. Hold 2 sec at top. #1 V-taper builder.", muscles: "Lats, rhomboids, rear delts" },
+    { name: "Banded Lateral Raise", sets: 3, reps: 15, band: "Yellow or Blue", cue: "Stand on band. Raise arms to shoulder height, slight forward angle, thumbs slightly down at top. 2-sec descent. Don't shrug.", muscles: "Medial deltoid (shoulder width)" },
+    { name: "Seated Band Face Pull", sets: 3, reps: 15, band: "Blue or Green", cue: "Sit on floor, loop band around feet. Pull toward face, elbows HIGH and flared. Finish with thumbs pointing behind you. Corrects forward shoulder posture.", muscles: "Rear delts, external rotators" },
+    { name: "Overhead Tricep Extension", sets: 3, reps: 12, band: "Blue or Green", cue: "Stand on band. Handles behind head, elbows up. Extend upward. Safe for elbow nerve — stretch tension, not compression.", muscles: "Tricep long head" },
+    { name: "Banded Bicep Curl", sets: 3, reps: 12, band: "Green", cue: "Stand on band. Curl to shoulders, elbows pinned to sides. 2-sec descent.", muscles: "Biceps, brachialis" },
+  ],
+  core: [
+    { name: "Dead Bug", sets: 3, reps: "8 each side", band: "No band", cue: "On back, arms up, knees 90°. Press lower back INTO floor. Lower opposite arm/leg without arching. #1 APT correction.", muscles: "Deep core, transverse abdominis" },
+    { name: "Band Woodchop", sets: 2, reps: "12 each side", band: "Green", cue: "Stand on one end of band. Both hands on handle near opposite hip. Rotate/chop diagonally upward. Control the return.", muscles: "Obliques, rotational core" },
+    { name: "Hollow Body Hold", sets: 3, reps: "15-20 sec", band: "No band", cue: "Back flat, arms overhead, press lower back to floor, lift shoulders and feet slightly. 'Belly button to spine' is the cue.", muscles: "Lower abs, transverse abdominis" },
+    { name: "Copenhagen Side Plank", sets: 3, reps: "20-30 sec", band: "No band", cue: "Top foot on chair edge. Hold side plank. Builds adductors and lateral core.", muscles: "Adductors, obliques" },
+  ]
+};
+
+const STRENGTH_B = {
+  id: "B", label: "Strength B", focus: "Lower Body / Core / Lower Abs",
+  warmup: [
+    { name: "Bodyweight Glute Bridge", sets: "2x20", band: "No band", cue: "Drive hips up, squeeze hard at top, posterior tilt (tuck pelvis under). Hold 2 sec. APT warm-up." },
+    { name: "Foam Roll Hip Flexors & Quads", sets: "2 min", band: "No band", cue: "Roll front of hip and upper quad. Pause at tender spots 20-30 sec. Tight hip flexors are the primary APT driver." },
+  ],
+  exercises: [
+    { name: "Bulgarian Split Squat", sets: 3, reps: 10, band: "Backpack load", cue: "Rear foot on couch. Front foot forward — knee behind toes. Drive through heel. Torso upright.", muscles: "Quads, glutes, single-leg stability" },
+    { name: "Hip Thrust", sets: 3, reps: 15, band: "Loaded backpack", cue: "Shoulders on couch, loaded backpack on hip crease. Drive up, SQUEEZE glutes, posterior tilt at top. #1 APT correction + glute builder.", muscles: "Glutes, hamstrings, APT correction" },
+    { name: "Single-Leg Romanian Deadlift", sets: 3, reps: 10, band: "Water jug in hand", cue: "Hinge forward, same-side leg extends back. Flat back, slight bend in standing knee. 3-sec descent.", muscles: "Hamstrings, glutes, balance" },
+    { name: "Banded Lateral Walk", sets: 3, reps: "15 steps each way", band: "Green or Red", cue: "Band around ankles or above knees. Stay in slight squat throughout. Controlled steps, constant tension.", muscles: "Glute medius, hip abductors" },
+    { name: "Banded Clamshell", sets: 3, reps: 20, band: "Yellow or Blue above knees", cue: "Lie on side, knees bent 90°. Rotate top knee up without rocking hips.", muscles: "Glute medius, hip external rotators" },
+  ],
+  core: [
+    { name: "Reverse Crunch", sets: 3, reps: 15, band: "No band", cue: "Curl the PELVIS upward — not just legs. Slow lower.", muscles: "Lower abs, hip flexors" },
+    { name: "Lying Leg Raise", sets: 3, reps: 12, band: "No band", cue: "Hands under glutes. Raise straight legs to 90°, lower without arching back.", muscles: "Lower abs, hip flexors" },
+    { name: "Dead Bug", sets: 3, reps: "8 each side", band: "No band", cue: "Daily APT correction. Lower back stays glued to floor the entire time.", muscles: "Deep core, APT correction" },
+    { name: "Flutter Kicks", sets: 3, reps: "20 sec", band: "No band", cue: "Hands under glutes, legs low, small rapid kicks. Lower back pressed down.", muscles: "Lower abs" },
+  ]
+};
+
+const APT_DAILY = [
+  { name: "Hip Flexor Foam Roll", sets: "90 sec each side", cue: "Pause at tender spots, breathe into them." },
+  { name: "Kneeling Hip Flexor Stretch", sets: "45 sec each side", cue: "Push hips forward, torso upright. Don't arch lower back." },
+  { name: "Glute Bridge", sets: "2x20", cue: "Slow, squeeze hard at top, posterior tilt, hold 2 sec." },
+  { name: "Dead Bug", sets: "1x8 each side", cue: "Lower back stays glued to floor." },
+];
+
+const SCHEDULE_WEEK1 = ["A", "CardioA", "B", "CardioB", "A", "Leisure", "Rest"];
+const SCHEDULE_WEEK2 = ["B", "CardioA", "A", "CardioB", "B", "Leisure", "Rest"];
+
+function getScheduleForDate(dateStr) {
+  const base = new Date("2026-02-16T00:00:00");
+  const d = new Date(dateStr + "T00:00:00");
+  const diffDays = Math.floor((d - base) / 86400000);
+  if (diffDays < 0) return null;
+  const cycleDay = ((diffDays % 14) + 14) % 14;
+  return cycleDay < 7 ? SCHEDULE_WEEK1[cycleDay] : SCHEDULE_WEEK2[cycleDay - 7];
+}
+
+function todayStr() { return new Date().toISOString().slice(0, 10); }
+
+const S = {
+  mono: "'DM Mono', monospace",
+  accent: "#00d4ff",
+  bg: "#0a0a0f",
+  card: "#111118",
+  border: "#1a2030",
+  dim: "#555",
+  text: "#e8e8f0",
+  sub: "#888",
+};
+
+// ─── APP ──────────────────────────────────────────────────────────────────────
+function App() {
+  const [tab, setTab] = useState("dashboard");
+  const [stats, setStats] = useState(null);
+  const [logs, setLogs] = useState({});
+  const [progress, setProgress] = useState([]);
+  const [settings, setSettings] = useState({ webhookUrl: "https://eoyovtw43hp8ksp.m.pipedream.net", lastSync: null });
+  const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false);
+  const [syncMsg, setSyncMsg] = useState("");
+
+  const defaultStats = {
+    weight: 149.6, bodyFat: 23.0, fatMass: 34.4, leanMass: 115.1,
+    bmi: 22.9, visceralFat: 9.0, waist: null, restingHR: 70, hrv: 24,
+    steps: null, updatedAt: "2026-03-01"
+  };
+
+  useEffect(() => {
+    async function load() {
+      try { const r = await window.storage.get("fitness_stats"); setStats(JSON.parse(r.value)); } catch { setStats(defaultStats); }
+      try { const r = await window.storage.get("fitness_logs"); setLogs(JSON.parse(r.value)); } catch { setLogs({}); }
+      try { const r = await window.storage.get("fitness_progress"); setProgress(JSON.parse(r.value)); } catch { setProgress([{ date: "2026-03-01", weight: 149.6, bodyFat: 23.0, waist: null }]); }
+      try { const r = await window.storage.get("fitness_settings"); setSettings(JSON.parse(r.value)); } catch {}
+      setLoading(false);
+    }
+    load();
+  }, []);
+
+  const saveStats = useCallback(async (v) => { setStats(v); await window.storage.set("fitness_stats", JSON.stringify(v)); }, []);
+  const saveLogs = useCallback(async (v) => { setLogs(v); await window.storage.set("fitness_logs", JSON.stringify(v)); }, []);
+  const saveProgress = useCallback(async (v) => { setProgress(v); await window.storage.set("fitness_progress", JSON.stringify(v)); }, []);
+  const saveSettings = useCallback(async (v) => { setSettings(v); await window.storage.set("fitness_settings", JSON.stringify(v)); }, []);
+
+  const syncFromWebhook = async () => {
+    if (!settings.webhookUrl) { setSyncMsg("No URL configured in Settings."); return; }
+    setSyncing(true); setSyncMsg("");
+    try {
+      const res = await fetch(settings.webhookUrl);
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      const data = await res.json();
+      const updated = { ...stats, ...data, updatedAt: todayStr() };
+      await saveStats(updated);
+      await saveProgress([...progress, { date: todayStr(), weight: updated.weight, bodyFat: updated.bodyFat, waist: updated.waist }]);
+      await saveSettings({ ...settings, lastSync: new Date().toLocaleString() });
+      setSyncMsg("Synced successfully!");
+    } catch (e) { setSyncMsg("Sync failed: " + e.message); }
+    setSyncing(false);
+  };
+
+  if (loading) return (
+    <div style={{ background: S.bg, minHeight: "100dvh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ color: S.accent, fontFamily: S.mono, fontSize: 13, letterSpacing: 3 }}>LOADING...</div>
+    </div>
+  );
+
+  const todaySchedule = getScheduleForDate(todayStr());
+
+  return (
+    <div style={{ background: S.bg, minHeight: "100dvh", maxWidth: 480, margin: "0 auto", paddingBottom: 80 }}>
+      {/* Header */}
+      <div style={{ background: "linear-gradient(135deg,#0d1117,#111827)", borderBottom: `1px solid ${S.border}`, padding: "env(safe-area-inset-top,16px) 20px 14px", position: "sticky", top: 0, zIndex: 50 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+          <div>
+            <div style={{ fontFamily: S.mono, fontSize: 10, color: S.accent, letterSpacing: 3, marginBottom: 2 }}>FORGE</div>
+            <div style={{ fontSize: 20, fontWeight: 700, letterSpacing: -0.5 }}>Fitness Tracker</div>
+          </div>
+          <div style={{ textAlign: "right" }}>
+            <div style={{ fontFamily: S.mono, fontSize: 9, color: S.dim }}>{new Date().toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"})}</div>
+            <div style={{ marginTop: 4, padding: "3px 8px", background: todaySchedule === "Rest" ? "#1a1a2a" : "#0d2030", border: `1px solid ${todaySchedule === "Rest" ? "#2a2a3a" : S.accent+"44"}`, borderRadius: 4, fontSize: 10, color: todaySchedule === "Rest" ? S.dim : S.accent, fontFamily: S.mono }}>
+              {todaySchedule === "A" ? "STR A" : todaySchedule === "B" ? "STR B" : todaySchedule === "CardioA" ? "CARDIO A" : todaySchedule === "CardioB" ? "CARDIO B" : (todaySchedule||"").toUpperCase()}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Tabs */}
+      {tab === "dashboard" && <Dashboard stats={stats} progress={progress} onSaveStats={saveStats} onSaveProgress={saveProgress} todaySchedule={todaySchedule} onSync={syncFromWebhook} syncing={syncing} syncMsg={syncMsg} />}
+      {tab === "workout" && <WorkoutPlan todaySchedule={todaySchedule} />}
+      {tab === "log" && <WorkoutLog logs={logs} onSaveLogs={saveLogs} todaySchedule={todaySchedule} />}
+      {tab === "progress" && <ProgressTab progress={progress} stats={stats} />}
+      {tab === "settings" && <SettingsTab settings={settings} onSave={saveSettings} stats={stats} />}
+
+      {/* Bottom Nav */}
+      <div style={{ position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 480, background: "#0d1117", borderTop: `1px solid ${S.border}`, display: "flex", paddingBottom: "env(safe-area-inset-bottom,0px)", zIndex: 100 }}>
+        {[["dashboard",Activity,"Dashboard"],["workout",BookOpen,"Plan"],["log",Zap,"Log"],["progress",BarChart2,"Progress"],["settings",Settings,"Settings"]].map(([id,Icon,label]) => (
+          <button key={id} onClick={() => setTab(id)} style={{ flex:1, padding:"12px 0 10px", background:"none", border:"none", cursor:"pointer", display:"flex", flexDirection:"column", alignItems:"center", gap:3 }}>
+            <Icon size={20} color={tab===id ? S.accent : "#3a4050"} strokeWidth={tab===id ? 2.5 : 1.5} />
+            <span style={{ fontSize:9, fontFamily:S.mono, letterSpacing:1, color:tab===id ? S.accent : "#3a4050" }}>{label.toUpperCase()}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── DASHBOARD ────────────────────────────────────────────────────────────────
+function Dashboard({ stats, progress, onSaveStats, onSaveProgress, todaySchedule, onSync, syncing, syncMsg }) {
+  const [editing, setEditing] = useState(false);
+  const [form, setForm] = useState({});
+  const bfTarget = 15;
+  const bfPct = stats ? Math.max(0, Math.min(100, ((stats.bodyFat - bfTarget) / (23 - bfTarget)) * 100)) : 50;
+
+  const startEdit = () => { setForm({ weight: stats.weight, bodyFat: stats.bodyFat, waist: stats.waist||"", restingHR: stats.restingHR, hrv: stats.hrv }); setEditing(true); };
+  const saveEdit = async () => {
+    const u = { ...stats, weight: parseFloat(form.weight)||stats.weight, bodyFat: parseFloat(form.bodyFat)||stats.bodyFat, waist: parseFloat(form.waist)||null, restingHR: parseFloat(form.restingHR)||stats.restingHR, hrv: parseFloat(form.hrv)||stats.hrv, updatedAt: todayStr() };
+    await onSaveStats(u);
+    await onSaveProgress([...progress, { date: todayStr(), weight: u.weight, bodyFat: u.bodyFat, waist: u.waist }]);
+    setEditing(false);
+  };
+
+  const dayLabel = {A:"Upper Body / Core / Taper", B:"Lower Body / Core / Lower Abs", CardioA:"1 mile intervals — HR 140–165 bpm", CardioB:"30 min Zone 2 walk — HR 100–130 bpm", Leisure:"Hike or long walk, 45–90 min", Rest:"Rest day. Recover well. 💤"};
+
+  return (
+    <div style={{ padding:"20px 16px 0" }}>
+      {/* Today */}
+      <div style={{ background: todaySchedule==="Rest"?"#111118":"linear-gradient(135deg,#0a1628,#0d2040)", border:`1px solid ${todaySchedule==="Rest"?"#1a1a2a":S.accent+"33"}`, borderRadius:12, padding:16, marginBottom:16 }}>
+        <div style={{ fontFamily:S.mono, fontSize:10, color:S.dim, letterSpacing:2, marginBottom:8 }}>TODAY'S SESSION</div>
+        <div style={{ fontSize:16, fontWeight:600, color: ["A","B"].includes(todaySchedule) ? S.accent : S.text, marginBottom:4 }}>
+          {todaySchedule==="A"?"Strength A":todaySchedule==="B"?"Strength B":todaySchedule==="CardioA"?"Cardio A — Intervals":todaySchedule==="CardioB"?"Cardio B — Zone 2":todaySchedule==="Leisure"?"Leisure Day":"Rest Day"}
+        </div>
+        <div style={{ color:S.sub, fontSize:13 }}>{dayLabel[todaySchedule]}</div>
+      </div>
+
+      {/* Stats header */}
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
+        <div style={{ fontFamily:S.mono, fontSize:10, color:S.dim, letterSpacing:2 }}>BODY STATS</div>
+        <div style={{ display:"flex", gap:8 }}>
+          <button onClick={onSync} disabled={syncing} style={{ background:"none", border:`1px solid ${S.border}`, borderRadius:6, padding:"4px 10px", cursor:"pointer", color:S.accent, fontSize:11, display:"flex", alignItems:"center", gap:4 }}>
+            <RefreshCw size={11} /> {syncing?"Syncing...":"Sync"}
+          </button>
+          <button onClick={startEdit} style={{ background:"none", border:`1px solid ${S.border}`, borderRadius:6, padding:"4px 10px", cursor:"pointer", color:S.sub, fontSize:11 }}>Edit</button>
+        </div>
+      </div>
+      {syncMsg && <div style={{ fontSize:11, color:syncMsg.includes("fail")||syncMsg.includes("No") ? "#ff6b6b":S.accent, marginBottom:8, fontFamily:S.mono }}>{syncMsg}</div>}
+
+      {stats && (<>
+        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:8, marginBottom:12 }}>
+          {[["WEIGHT",stats.weight+" lb","Updated "+stats.updatedAt,false],["BODY FAT",stats.bodyFat+"%","Target: 15%",true],["LEAN MASS",stats.leanMass+" lb","Preserve this",false],["RESTING HR",stats.restingHR+" bpm","↓ over time",false],["HRV",stats.hrv+" ms","↑ over time",false],["WAIST",stats.waist?stats.waist+'"':"—","Tap Edit to add",false]].map(([label,val,sub,accent])=>(
+            <div key={label} style={{ background:S.card, border:`1px solid ${accent?S.accent+"22":S.border}`, borderRadius:10, padding:"12px 10px" }}>
+              <div style={{ fontFamily:S.mono, fontSize:8, color:accent?S.accent:"#444", letterSpacing:1.5, marginBottom:4 }}>{label}</div>
+              <div style={{ fontSize:17, fontWeight:700, color:accent?S.accent:S.text, lineHeight:1 }}>{val}</div>
+              <div style={{ fontSize:9, color:"#444", marginTop:3 }}>{sub}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* BF progress bar */}
+        <div style={{ background:S.card, border:`1px solid ${S.border}`, borderRadius:10, padding:"14px 16px", marginBottom:12 }}>
+          <div style={{ display:"flex", justifyContent:"space-between", marginBottom:8 }}>
+            <div style={{ fontFamily:S.mono, fontSize:9, color:S.dim, letterSpacing:1.5 }}>BODY FAT PROGRESS</div>
+            <div style={{ fontFamily:S.mono, fontSize:9, color:S.accent }}>{stats.bodyFat}% → 15%</div>
+          </div>
+          <div style={{ background:"#1a2030", borderRadius:4, height:8, overflow:"hidden" }}>
+            <div style={{ height:"100%", width:`${100-bfPct}%`, background:"linear-gradient(90deg,#00d4ff,#0090ff)", borderRadius:4, transition:"width 0.5s ease" }} />
+          </div>
+          <div style={{ display:"flex", justifyContent:"space-between", marginTop:6, fontSize:10, color:"#444" }}>
+            <span>15% goal</span>
+            <span>~{((stats.bodyFat-15)/100*stats.weight).toFixed(1)} lbs fat to lose</span>
+          </div>
+        </div>
+
+        {stats.visceralFat >= 8 && (
+          <div style={{ background:"#1a0f0a", border:"1px solid #ff6b3320", borderRadius:10, padding:"10px 14px", marginBottom:12, display:"flex", gap:10, alignItems:"flex-start" }}>
+            <AlertCircle size={15} color="#ff6b33" style={{ marginTop:1, flexShrink:0 }} />
+            <div style={{ fontSize:12, color:"#cc8866", lineHeight:1.5 }}>Visceral Fat <b style={{color:"#ff6b33"}}>{stats.visceralFat}</b> — borderline. Zone 2 cardio + low-carb diet are your fastest levers.</div>
+          </div>
+        )}
+      </>)}
+
+      {/* APT Daily */}
+      <div style={{ background:"#0d1a0d", border:"1px solid #1a3020", borderRadius:10, padding:"12px 16px" }}>
+        <div style={{ fontFamily:S.mono, fontSize:9, color:"#3a8050", letterSpacing:1.5, marginBottom:10 }}>DAILY APT ROUTINE (5-10 MIN)</div>
+        {APT_DAILY.map((ex,i)=>(
+          <div key={i} style={{ display:"flex", gap:10, alignItems:"center", marginBottom:8 }}>
+            <div style={{ width:18, height:18, borderRadius:"50%", border:"1px solid #2a4030", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+              <span style={{ fontSize:8, color:"#3a8050", fontFamily:S.mono }}>{i+1}</span>
+            </div>
+            <div><div style={{ fontSize:12, fontWeight:500 }}>{ex.name}</div><div style={{ fontSize:10, color:S.dim }}>{ex.sets}</div></div>
+          </div>
+        ))}
+      </div>
+
+      {/* Edit modal */}
+      {editing && (
+        <div style={{ position:"fixed", inset:0, background:"#000b", display:"flex", alignItems:"center", justifyContent:"center", zIndex:200, padding:20 }}>
+          <div style={{ background:S.card, border:`1px solid ${S.border}`, borderRadius:16, padding:24, width:"100%", maxWidth:360 }}>
+            <div style={{ fontFamily:S.mono, fontSize:11, color:S.accent, letterSpacing:2, marginBottom:16 }}>UPDATE STATS</div>
+            {[["weight","Weight (lbs)"],["bodyFat","Body Fat %"],["waist","Waist (inches)"],["restingHR","Resting HR (bpm)"],["hrv","HRV (ms)"]].map(([k,label])=>(
+              <div key={k} style={{ marginBottom:12 }}>
+                <div style={{ fontSize:11, color:S.sub, marginBottom:4 }}>{label}</div>
+                <input value={form[k]} onChange={e=>setForm(f=>({...f,[k]:e.target.value}))} style={{ width:"100%", background:"#0d1117", border:`1px solid ${S.border}`, borderRadius:8, padding:"8px 12px", color:S.text, fontSize:14 }} />
+              </div>
+            ))}
+            <div style={{ display:"flex", gap:10, marginTop:16 }}>
+              <button onClick={()=>setEditing(false)} style={{ flex:1, padding:10, background:"#1a2030", border:"none", borderRadius:8, color:S.sub, cursor:"pointer" }}>Cancel</button>
+              <button onClick={saveEdit} style={{ flex:1, padding:10, background:S.accent, border:"none", borderRadius:8, color:"#000", fontWeight:700, cursor:"pointer" }}>Save</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── WORKOUT PLAN ─────────────────────────────────────────────────────────────
+function WorkoutPlan({ todaySchedule }) {
+  const [active, setActive] = useState(todaySchedule==="A"||todaySchedule==="B"?todaySchedule:"A");
+  const [expanded, setExpanded] = useState({});
+  const workout = active==="A" ? STRENGTH_A : STRENGTH_B;
+  const toggle = k => setExpanded(e=>({...e,[k]:!e[k]}));
+
+  const ExCard = ({ex, section, idx}) => {
+    const key = `${section}-${idx}`;
+    const isOpen = expanded[key];
+    return (
+      <div style={{ background:S.card, border:`1px solid ${S.border}`, borderRadius:10, marginBottom:8, overflow:"hidden" }}>
+        <button onClick={()=>toggle(key)} style={{ width:"100%", background:"none", border:"none", padding:"12px 14px", cursor:"pointer", display:"flex", alignItems:"center", gap:10, textAlign:"left" }}>
+          <div style={{ width:26, height:26, borderRadius:"50%", background:"#1a2030", border:"2px solid #2a3040", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+            <span style={{ fontFamily:S.mono, fontSize:9, color:S.dim }}>{idx+1}</span>
+          </div>
+          <div style={{ flex:1 }}>
+            <div style={{ fontSize:13, fontWeight:500 }}>{ex.name}</div>
+            <div style={{ fontSize:10, color:S.dim, fontFamily:S.mono, marginTop:2 }}>
+              {typeof ex.sets==="number"?`${ex.sets} × ${ex.reps}`:ex.sets||ex.reps} · {ex.band}
+            </div>
+          </div>
+          {isOpen ? <ChevronUp size={14} color="#444" /> : <ChevronDown size={14} color="#444" />}
+        </button>
+        {isOpen && (
+          <div style={{ padding:"0 14px 14px", borderTop:`1px solid ${S.border}` }}>
+            <div style={{ fontSize:12, color:"#aaa", lineHeight:1.6, marginTop:10, marginBottom:6 }}>{ex.cue}</div>
+            {ex.muscles && <div style={{ fontSize:10, color:S.dim, fontFamily:S.mono }}>↗ {ex.muscles}</div>}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const SectionLabel = ({text}) => <div style={{ fontFamily:S.mono, fontSize:10, color:S.accent, letterSpacing:2, marginBottom:10, marginTop:16 }}>{text}</div>;
+
+  return (
+    <div style={{ padding:"20px 16px 0" }}>
+      <div style={{ display:"flex", background:S.card, borderRadius:10, padding:3, marginBottom:16, border:`1px solid ${S.border}` }}>
+        {["A","B"].map(w=>(
+          <button key={w} onClick={()=>setActive(w)} style={{ flex:1, padding:"8px", background:active===w?S.accent:"none", border:"none", borderRadius:8, cursor:"pointer", fontFamily:S.mono, fontSize:12, color:active===w?"#000":S.dim, fontWeight:active===w?700:400, letterSpacing:1 }}>
+            STR {w} — {w==="A"?"UPPER":"LOWER"}
+          </button>
+        ))}
+      </div>
+      <div style={{ fontSize:12, color:S.sub, marginBottom:16 }}>{workout.focus}</div>
+      <SectionLabel text="WARM-UP" />
+      {workout.warmup.map((ex,i)=><ExCard key={"wu"+i} ex={ex} section="warmup" idx={i} />)}
+      <SectionLabel text="MAIN WORK" />
+      {workout.exercises.map((ex,i)=><ExCard key={"ex"+i} ex={ex} section="main" idx={i} />)}
+      <SectionLabel text="CORE / APT WORK" />
+      {workout.core.map((ex,i)=><ExCard key={"core"+i} ex={ex} section="core" idx={i} />)}
+    </div>
+  );
+}
+
+// ─── LOG ──────────────────────────────────────────────────────────────────────
+function WorkoutLog({ logs, onSaveLogs, todaySchedule }) {
+  const today = todayStr();
+  const todayLog = logs[today] || { sets:{}, notes:"", done:{} };
+  const workout = todaySchedule==="A" ? STRENGTH_A : todaySchedule==="B" ? STRENGTH_B : null;
+  if (!workout) return (
+    <div style={{ padding:"60px 20px", textAlign:"center" }}>
+      <Zap size={32} color="#1a2030" style={{ marginBottom:12 }} />
+      <div style={{ color:S.dim, fontSize:14 }}>No strength workout today.</div>
+      <div style={{ color:"#444", fontSize:12, marginTop:6 }}>Today is a {(todaySchedule||"rest").toLowerCase()} day.</div>
+    </div>
+  );
+
+  const allEx = [...workout.exercises, ...workout.core];
+
+  const updateSet = async (name, si, field, val) => {
+    const u = { ...logs };
+    if (!u[today]) u[today] = { sets:{}, notes:"", done:{} };
+    if (!u[today].sets[name]) u[today].sets[name] = [];
+    if (!u[today].sets[name][si]) u[today].sets[name][si] = { reps:"", note:"" };
+    u[today].sets[name][si][field] = val;
+    await onSaveLogs(u);
+  };
+
+  const toggleDone = async (name) => {
+    const u = { ...logs };
+    if (!u[today]) u[today] = { sets:{}, notes:"", done:{} };
+    if (!u[today].done) u[today].done = {};
+    u[today].done[name] = !u[today].done[name];
+    await onSaveLogs(u);
+  };
+
+  const updateNotes = async (val) => {
+    const u = { ...logs };
+    if (!u[today]) u[today] = { sets:{}, notes:"", done:{} };
+    u[today].notes = val;
+    await onSaveLogs(u);
+  };
+
+  return (
+    <div style={{ padding:"20px 16px 0" }}>
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:16 }}>
+        <div>
+          <div style={{ fontFamily:S.mono, fontSize:9, color:S.accent, letterSpacing:2 }}>TODAY'S LOG</div>
+          <div style={{ fontSize:16, fontWeight:600, marginTop:2 }}>Strength {todaySchedule}</div>
+        </div>
+        <div style={{ fontFamily:S.mono, fontSize:9, color:S.dim }}>{today}</div>
+      </div>
+      {allEx.map(ex => {
+        const numSets = typeof ex.sets==="number" ? ex.sets : 3;
+        const done = todayLog.done?.[ex.name];
+        const sets = todayLog.sets?.[ex.name] || [];
+        return (
+          <div key={ex.name} style={{ background:done?"#0d1a0d":S.card, border:`1px solid ${done?"#1a3020":S.border}`, borderRadius:10, padding:14, marginBottom:10 }}>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:10 }}>
+              <div>
+                <div style={{ fontSize:13, fontWeight:500 }}>{ex.name}</div>
+                <div style={{ fontSize:10, color:S.dim, fontFamily:S.mono, marginTop:2 }}>{numSets} × {ex.reps} · {ex.band}</div>
+              </div>
+              <button onClick={()=>toggleDone(ex.name)} style={{ padding:"4px 10px", background:done?"#1a3020":"#1a2030", border:`1px solid ${done?"#3a8050":"#2a3040"}`, borderRadius:6, cursor:"pointer", color:done?"#3a8050":S.dim, fontSize:11, display:"flex", alignItems:"center", gap:4 }}>
+                {done ? <><Check size={10}/> Done</> : "Mark Done"}
+              </button>
+            </div>
+            {Array.from({length:numSets}).map((_,si)=>(
+              <div key={si} style={{ display:"flex", gap:8, marginBottom:6, alignItems:"center" }}>
+                <div style={{ fontFamily:S.mono, fontSize:9, color:S.dim, width:16 }}>S{si+1}</div>
+                <input placeholder="Reps" value={sets[si]?.reps||""} onChange={e=>updateSet(ex.name,si,"reps",e.target.value)} style={{ flex:1, background:"#0d1117", border:`1px solid ${S.border}`, borderRadius:6, padding:"6px 10px", color:S.text, fontSize:12 }} />
+                <input placeholder="Note" value={sets[si]?.note||""} onChange={e=>updateSet(ex.name,si,"note",e.target.value)} style={{ flex:2, background:"#0d1117", border:`1px solid ${S.border}`, borderRadius:6, padding:"6px 10px", color:S.text, fontSize:12 }} />
+              </div>
+            ))}
+          </div>
+        );
+      })}
+      <div style={{ marginTop:8, marginBottom:20 }}>
+        <div style={{ fontFamily:S.mono, fontSize:9, color:S.dim, letterSpacing:2, marginBottom:6 }}>SESSION NOTES</div>
+        <textarea value={todayLog.notes||""} onChange={e=>updateNotes(e.target.value)} placeholder="How did it feel? Any issues? PRs?" style={{ width:"100%", background:S.card, border:`1px solid ${S.border}`, borderRadius:10, padding:12, color:S.text, fontSize:13, minHeight:80 }} />
+      </div>
+    </div>
+  );
+}
+
+// ─── PROGRESS ─────────────────────────────────────────────────────────────────
+function ProgressTab({ progress, stats }) {
+  const chartData = (progress||[]).map(p=>({...p, date:(p.date||"").slice(5)}));
+  return (
+    <div style={{ padding:"20px 16px 0" }}>
+      <div style={{ fontFamily:S.mono, fontSize:10, color:S.accent, letterSpacing:2, marginBottom:16 }}>PROGRESS CHARTS</div>
+      {chartData.length < 2 ? (
+        <div style={{ background:S.card, border:`1px solid ${S.border}`, borderRadius:12, padding:24, textAlign:"center", marginBottom:16 }}>
+          <TrendingDown size={28} color="#1a2030" style={{ marginBottom:10 }} />
+          <div style={{ color:S.dim, fontSize:13 }}>Not enough data yet.</div>
+          <div style={{ color:"#444", fontSize:11, marginTop:6 }}>Update stats from Dashboard to start tracking.</div>
+        </div>
+      ) : (<>
+        {[["WEIGHT (LBS)","weight","#00d4ff","wg"],[" BODY FAT %","bodyFat","#ff6b33","bfg"]].map(([label,key,color,gid])=>(
+          <div key={key} style={{ background:S.card, border:`1px solid ${S.border}`, borderRadius:12, padding:"16px 4px 16px 0", marginBottom:12 }}>
+            <div style={{ fontFamily:S.mono, fontSize:9, color:S.dim, letterSpacing:2, paddingLeft:16, marginBottom:10 }}>{label}</div>
+            <ResponsiveContainer width="100%" height={130}>
+              <AreaChart data={chartData}>
+                <defs><linearGradient id={gid} x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={color} stopOpacity={0.2}/><stop offset="95%" stopColor={color} stopOpacity={0}/></linearGradient></defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#1a2030" />
+                <XAxis dataKey="date" stroke="#333" tick={{fill:"#555",fontSize:9,fontFamily:"DM Mono"}} />
+                <YAxis stroke="#333" tick={{fill:"#555",fontSize:9,fontFamily:"DM Mono"}} domain={["auto","auto"]} />
+                <Tooltip contentStyle={{background:S.card,border:`1px solid ${S.border}`,borderRadius:8,fontSize:12}} />
+                <Area type="monotone" dataKey={key} stroke={color} strokeWidth={2} fill={`url(#${gid})`} dot={{fill:color,r:3}} />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        ))}
+      </>)}
+      <div style={{ background:S.card, border:`1px solid ${S.border}`, borderRadius:12, padding:16 }}>
+        <div style={{ fontFamily:S.mono, fontSize:9, color:S.dim, letterSpacing:2, marginBottom:12 }}>TARGETS</div>
+        {[["Body Fat",stats?.bodyFat+"%","15%"],["Weight",stats?.weight+" lbs","~135 lbs"],["Visceral Fat",stats?.visceralFat,"< 7"]].map(([label,cur,target])=>(
+          <div key={label} style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"8px 0", borderBottom:`1px solid ${S.border}` }}>
+            <div style={{ fontSize:13 }}>{label}</div>
+            <div style={{ display:"flex", gap:8, alignItems:"center" }}>
+              <span style={{ fontFamily:S.mono, fontSize:12 }}>{cur}</span>
+              <ChevronRight size={12} color="#333" />
+              <span style={{ fontFamily:S.mono, fontSize:12, color:S.accent }}>{target}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── SETTINGS ─────────────────────────────────────────────────────────────────
+function SettingsTab({ settings, onSave, stats }) {
+  const [url, setUrl] = useState(settings.webhookUrl||"");
+  const [saved, setSaved] = useState(false);
+  const [open, setOpen] = useState("pipedream");
+
+  const save = async () => { await onSave({...settings, webhookUrl:url}); setSaved(true); setTimeout(()=>setSaved(false),2000); };
+
+  const Sec = ({id, title, color="#00d4ff", children}) => {
+    const isOpen = open===id;
+    return (
+      <div style={{ background:S.card, border:`1px solid ${isOpen?color+"33":S.border}`, borderRadius:12, marginBottom:10, overflow:"hidden" }}>
+        <button onClick={()=>setOpen(isOpen?null:id)} style={{ width:"100%", background:"none", border:"none", padding:"14px 16px", cursor:"pointer", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+          <div style={{ fontFamily:S.mono, fontSize:9, color:isOpen?color:S.dim, letterSpacing:2 }}>{title}</div>
+          {isOpen ? <ChevronUp size={13} color="#444"/> : <ChevronDown size={13} color="#444"/>}
+        </button>
+        {isOpen && <div style={{ padding:"0 16px 16px", borderTop:`1px solid ${S.border}` }}>{children}</div>}
+      </div>
+    );
+  };
+
+  const Step = ({n, text, sub}) => (
+    <div style={{ display:"flex", gap:10, marginBottom:10, alignItems:"flex-start" }}>
+      <div style={{ minWidth:20, height:20, borderRadius:"50%", background:"#0d2030", border:`1px solid ${S.accent}33`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:8, color:S.accent, fontFamily:S.mono, marginTop:1, flexShrink:0 }}>{n}</div>
+      <div>
+        <div style={{ fontSize:11, color:"#aaa", lineHeight:1.6 }}>{text}</div>
+        {sub && <div style={{ fontSize:10, color:S.dim, marginTop:2, lineHeight:1.5 }}>{sub}</div>}
+      </div>
+    </div>
+  );
+
+  return (
+    <div style={{ padding:"20px 16px 0" }}>
+      <div style={{ fontFamily:S.mono, fontSize:10, color:S.accent, letterSpacing:2, marginBottom:16 }}>SETTINGS</div>
+
+      <Sec id="pipedream" title="STEP 1 — PIPEDREAM SETUP">
+        <div style={{ marginTop:12 }}>
+          <div style={{ fontSize:11, color:"#666", lineHeight:1.6, marginBottom:12 }}>Free account at <span style={{color:S.accent}}>pipedream.com</span>. When prompted, choose <b style={{color:"#fff"}}>"Building automations"</b>.</div>
+          <Step n={1} text="Go to pipedream.com → sign up free → New Project → New → Workflow" />
+          <Step n={2} text='Trigger: "HTTP / Webhook" → Generate URL → copy it' sub="You'll need this for the Shortcut." />
+          <Step n={3} text='+ step → "Data Stores" → Set Record' sub='Store: "health_data" · Key: "latest" · Value: {{steps.trigger.event.body}}' />
+          <Step n={4} text="+ step → HTTP Response → Body: {{steps.data_store.$return_value}}" sub="This lets the Sync button read data back out." />
+          <Step n={5} text="Click Deploy (top right). Done." />
+        </div>
+      </Sec>
+
+      <Sec id="shortcut" title="STEP 2 — BUILD THE SHORTCUT">
+        <div style={{ marginTop:12 }}>
+          <div style={{ fontSize:11, color:"#666", lineHeight:1.6, marginBottom:12 }}>Open <b style={{color:"#fff"}}>Shortcuts app</b> → tap <b style={{color:"#fff"}}>+</b> → name it <b style={{color:"#fff"}}>"Sync Health to FORGE"</b></div>
+          <Step n={1} text='Add: "Get Contents of Health" → Weight → Most Recent → Last Day' sub='Rename variable "weight"' />
+          <Step n={2} text="Repeat for: Body Fat % → Average → Last Day" sub='Rename "bodyFat"' />
+          <Step n={3} text="Repeat for: Resting Heart Rate → Average → Last Day" sub='Rename "restingHR"' />
+          <Step n={4} text="Repeat for: Heart Rate Variability → Average → Last Day" sub='Rename "hrv"' />
+          <Step n={5} text="Repeat for: Step Count → Sum → Last Day" sub='Rename "steps"' />
+          <Step n={6} text="Repeat for: Active Energy Burned → Sum → Last Day" sub='Rename "activeCalories"' />
+          <Step n={7} text="Add: Dictionary — add keys for each variable above + syncedAt → Current Date" />
+          <Step n={8} text="Add: Get Contents of URL" sub="URL: your Pipedream URL · Method: POST · Content-Type: application/json · Body: JSON → your Dictionary" />
+          <Step n={9} text='Optional: Notification "Health synced to FORGE ✓"' />
+          <Step n={10} text="Tap Done. Run once manually to test." />
+        </div>
+      </Sec>
+
+      <Sec id="automations" title="STEP 3 — 3 AUTOMATIONS">
+        <div style={{ marginTop:12 }}>
+          <div style={{ fontSize:11, color:"#666", lineHeight:1.6, marginBottom:12 }}>Shortcuts → <b style={{color:"#fff"}}>Automation tab</b> → + for each. Set <b style={{color:"#fff"}}>Run Immediately = ON</b>.</div>
+          {[
+            {label:"AUTOMATION 1 — MORNING", steps:["Trigger: Time of Day → 8:00 AM Daily","Action: Run Shortcut → Sync Health to FORGE","Run Immediately: ON"]},
+            {label:"AUTOMATION 2 — AFTER WEIGHING", steps:["Trigger: App → Is Closed → iHome scale app","Action: Run Shortcut → Sync Health to FORGE","Run Immediately: ON","(If iHome not listed, use Time of Day at weigh-in time)"]},
+            {label:"AUTOMATION 3 — AFTER WORKOUT", steps:["Trigger: Workout → Ends → Any","Action: Run Shortcut → Sync Health to FORGE","Run Immediately: ON"]},
+          ].map(({label,steps})=>(
+            <div key={label} style={{ background:"#0d1117", border:`1px solid ${S.border}`, borderRadius:8, padding:12, marginBottom:10 }}>
+              <div style={{ fontFamily:S.mono, fontSize:9, color:S.accent, letterSpacing:1.5, marginBottom:8 }}>{label}</div>
+              {steps.map((s,i)=><div key={i} style={{ fontSize:11, color:s.startsWith("(")?S.dim:"#aaa", lineHeight:1.6, paddingLeft:8, borderLeft:`2px solid ${s.startsWith("(")?S.border:S.accent+"22"}`, marginBottom:4 }}>{s}</div>)}
+            </div>
+          ))}
+        </div>
+      </Sec>
+
+      <Sec id="connect" title="STEP 4 — CONNECT TO APP">
+        <div style={{ marginTop:12 }}>
+          <div style={{ fontSize:11, color:"#666", lineHeight:1.6, marginBottom:12 }}>Paste your Pipedream URL. The Sync button on Dashboard uses this to pull your latest health data.</div>
+          <input value={url} onChange={e=>setUrl(e.target.value)} placeholder="https://your-endpoint.m.pipedream.net/..." style={{ width:"100%", background:"#0d1117", border:`1px solid ${S.border}`, borderRadius:8, padding:"10px 12px", color:S.text, fontSize:12, marginBottom:10 }} />
+          <button onClick={save} style={{ width:"100%", padding:10, background:saved?"#1a3020":S.accent, border:"none", borderRadius:8, color:saved?"#3a8050":"#000", fontWeight:700, cursor:"pointer", fontSize:13, fontFamily:S.mono }}>
+            {saved?"✓ SAVED":"SAVE URL"}
+          </button>
+          {settings.lastSync && <div style={{ fontSize:10, color:"#444", marginTop:8, textAlign:"center" }}>Last sync: {settings.lastSync}</div>}
+        </div>
+      </Sec>
+
+      <Sec id="homescreen" title="ADD TO HOME SCREEN" color="#3a8050">
+        <div style={{ marginTop:12 }}>
+          <Step n={1} text="Open this page in Safari (not Chrome)" />
+          <Step n={2} text="Tap the Share button (box with upward arrow)" />
+          <Step n={3} text='"Add to Home Screen" → "Add"' />
+          <div style={{ background:"#0d1a0d", border:"1px solid #1a3020", borderRadius:8, padding:10, fontSize:11, color:"#3a8050", lineHeight:1.6, marginTop:4 }}>Opens full-screen like a native app. All data is stored locally on your device.</div>
+        </div>
+      </Sec>
+
+      <div style={{ background:S.card, border:`1px solid ${S.border}`, borderRadius:12, padding:14, marginBottom:20 }}>
+        <div style={{ fontFamily:S.mono, fontSize:9, color:S.dim, letterSpacing:2, marginBottom:6 }}>DATA & CLAUDE UPDATES</div>
+        <div style={{ fontSize:11, color:S.dim, lineHeight:1.7 }}>All logs, stats, and progress save locally in your browser. Claude can push workout plan updates, new exercises, or corrected data from your conversations — just ask.</div>
+        {stats && <div style={{ fontFamily:S.mono, fontSize:9, color:"#333", marginTop:8 }}>Last stats update: {stats.updatedAt}</div>}
+      </div>
+    </div>
+  );
+}
+
+// ─── RENDER ───────────────────────────────────────────────────────────────────
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+</script>
+</body>
+</html>
