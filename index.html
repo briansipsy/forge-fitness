@@ -351,7 +351,9 @@ let logs=store.get('logs')||{};
 let progress=(function(){const p=store.get('progress');return(Array.isArray(p)&&p.length)?p:[{date:"2026-03-01",weight:149.6,bodyFat:23.0,waist:null}];})();
 let settings={webhookUrl:"https://eoyovtw43hp8ksp.m.pipedream.net",lastSync:null};
 try{const sv=store.get('settings');if(sv&&typeof sv==='object')Object.assign(settings,sv);}catch(e){}
-function resetAllData(){if(!confirm('Reset all local data to defaults?'))return;['stats','logs','progress','settings'].forEach(function(k){localStorage.removeItem('forge_'+k);});location.reload();}
+function resetAllData(){['stats','logs','progress','settings'].forEach(function(k){localStorage.removeItem('forge_'+k);});location.href=location.pathname;}
+// URL reset trigger - visit URL?reset to wipe bad data
+if(location.search.indexOf('reset')!==-1){resetAllData();}
 
 // ── TABS ───────────────────────────────────────────────────────────────────
 let curTab='dashboard';
@@ -639,11 +641,15 @@ setTimeout(()=>{msg.style.display=‘none’;},4000);
 
 // ── INIT ───────────────────────────────────────────────────────────────────
 (function init(){
+try{
 const sched=getSchedule(todayStr());
 activeWorkout=(sched===‘A’||sched===‘B’)?sched:‘A’;
 initHeader();
 renderDashboard();
 renderWorkout();
+}catch(e){
+document.getElementById(‘main’).innerHTML=’<div style="padding:40px 20px;color:#ff6b6b;font-family:monospace;font-size:13px"><b>Error on load:</b><br><br>’+e.message+’<br><br><a href="?reset" style="color:#00d4ff">Tap here to reset app data and fix</a></div>’;
+}
 })();
 </script>
 
