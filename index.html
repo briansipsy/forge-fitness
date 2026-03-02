@@ -238,6 +238,7 @@ svg.chart-area{width:100%;overflow:visible}
       <div class="label">DATA & CLAUDE UPDATES</div>
       <div style="font-size:11px;color:#555;line-height:1.7">All logs and stats save locally in your browser. Claude can update your workout plan or stats from conversations — just ask.</div>
       <div class="mono" id="last-update-label" style="font-size:9px;color:#333;margin-top:8px"></div>
+      <button onclick="resetAllData()" style="margin-top:12px;width:100%;padding:9px;background:none;border:1px solid #3a1a1a;border-radius:8px;color:#ff4444;font-size:11px;font-family:'DM Mono',monospace;letter-spacing:1px">RESET ALL DATA TO DEFAULTS</button>
     </div>
   </div>
 </div>
@@ -335,10 +336,22 @@ const store={
 };
 
 const defaultStats={weight:149.6,bodyFat:23.0,fatMass:34.4,leanMass:115.1,bmi:22.9,visceralFat:9.0,waist:null,restingHR:70,hrv:24,updatedAt:"2026-03-01"};
-let stats={...defaultStats,...(store.get('stats')||{})};
+function validStats(s){
+  if(!s||typeof s!=='object')return defaultStats;
+  const out={...defaultStats};
+  ['weight','bodyFat','fatMass','leanMass','bmi','visceralFat','restingHR','hrv'].forEach(function(k){
+    const v=parseFloat(s[k]);if(!isNaN(v)&&v>0)out[k]=v;
+  });
+  if(s.waist&&parseFloat(s.waist)>0)out.waist=parseFloat(s.waist);
+  if(s.updatedAt)out.updatedAt=s.updatedAt;
+  return out;
+}
+let stats=validStats(store.get('stats'));
 let logs=store.get('logs')||{};
-let progress=store.get('progress')||[{date:"2026-03-01",weight:149.6,bodyFat:23.0,waist:null}];
-let settings={webhookUrl:"https://eoyovtw43hp8ksp.m.pipedream.net",lastSync:null,...(store.get('settings')||{})};
+let progress=(function(){const p=store.get('progress');return(Array.isArray(p)&&p.length)?p:[{date:"2026-03-01",weight:149.6,bodyFat:23.0,waist:null}];})();
+let settings={webhookUrl:"https://eoyovtw43hp8ksp.m.pipedream.net",lastSync:null};
+try{const sv=store.get('settings');if(sv&&typeof sv==='object')Object.assign(settings,sv);}catch(e){}
+function resetAllData(){if(!confirm('Reset all local data to defaults?'))return;['stats','logs','progress','settings'].forEach(function(k){localStorage.removeItem('forge_'+k);});location.reload();}
 
 // ── TABS ───────────────────────────────────────────────────────────────────
 let curTab='dashboard';
