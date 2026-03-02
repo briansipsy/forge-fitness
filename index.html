@@ -335,10 +335,10 @@ const store={
 };
 
 const defaultStats={weight:149.6,bodyFat:23.0,fatMass:34.4,leanMass:115.1,bmi:22.9,visceralFat:9.0,waist:null,restingHR:70,hrv:24,updatedAt:"2026-03-01"};
-let stats=store.get('stats')||defaultStats;
+let stats={...defaultStats,...(store.get('stats')||{})};
 let logs=store.get('logs')||{};
 let progress=store.get('progress')||[{date:"2026-03-01",weight:149.6,bodyFat:23.0,waist:null}];
-let settings=store.get('settings')||{webhookUrl:"https://eoyovtw43hp8ksp.m.pipedream.net",lastSync:null};
+let settings={webhookUrl:"https://eoyovtw43hp8ksp.m.pipedream.net",lastSync:null,...(store.get('settings')||{})};
 
 // ── TABS ───────────────────────────────────────────────────────────────────
 let curTab='dashboard';
