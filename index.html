@@ -11,252 +11,183 @@
 <title>FORGE Fitness</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
-  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:rgba(0,0,0,0)}
-  html,body{height:100%;background:#0a0a0f;color:#e8e8f0;font-family:'DM Sans',sans-serif;overscroll-behavior:none}
-  input,textarea,button{font-family:'DM Sans',sans-serif;outline:none}
-  textarea{resize:none}
-  ::-webkit-scrollbar{display:none}
-
-#app{display:flex;flex-direction:column;height:100dvh;max-width:480px;margin:0 auto}
-
-/* HEADER */
-#hdr{flex-shrink:0;background:linear-gradient(135deg,#0d1117,#111827);border-bottom:1px solid #1a2030;padding:16px 20px 14px;padding-top:max(16px,env(safe-area-inset-top))}
-#hdr-inner{display:flex;justify-content:space-between;align-items:flex-start}
-.hdr-forge{font-family:‘DM Mono’,monospace;font-size:10px;color:#00d4ff;letter-spacing:3px;margin-bottom:2px}
-.hdr-title{font-size:20px;font-weight:700;letter-spacing:-0.5px}
-#hdr-date{font-family:‘DM Mono’,monospace;font-size:9px;color:#555}
-#hdr-sched{margin-top:4px;padding:3px 8px;border-radius:4px;font-size:10px;font-family:‘DM Mono’,monospace;display:inline-block}
-
-/* SCROLL AREA */
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#0a0a0f;color:#e8e8f0;font-family:'DM Sans',sans-serif;overscroll-behavior:none}
+input,textarea,button{font-family:inherit;outline:none}
+textarea{resize:none}
+::-webkit-scrollbar{display:none}
+#wrap{display:flex;flex-direction:column;height:100svh;max-width:480px;margin:0 auto}
+#hdr{flex-shrink:0;background:#0d1117;border-bottom:1px solid #1a2030;padding:max(16px,env(safe-area-inset-top)) 20px 14px}
 #scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
-.page{display:none;padding:20px 16px 20px}
-.page.active{display:block}
-
-/* NAV BAR */
-#nav{flex-shrink:0;background:#0d1117;border-top:1px solid #1a2030;display:flex;padding-bottom:max(0px,env(safe-area-inset-bottom))}
-.nav-btn{flex:1;background:none;border:none;padding:10px 0 8px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;-webkit-tap-highlight-color:rgba(0,212,255,0.1)}
-.nav-icon{font-size:20px;line-height:1}
-.nav-label{font-family:‘DM Mono’,monospace;font-size:9px;letter-spacing:1px;color:#3a4050}
-.nav-btn.active .nav-label{color:#00d4ff}
-
-/* CARDS */
+.pg{display:none;padding:20px 16px 20px}
+.pg.on{display:block}
+#nav{flex-shrink:0;display:flex;background:#0d1117;border-top:1px solid #1a2030;padding-bottom:env(safe-area-inset-bottom,0px)}
+.nb{flex:1;border:none;background:none;padding:10px 0 8px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer}
+.ni{font-size:20px;line-height:1;opacity:0.3}
+.nb.on .ni{opacity:1}
+.nl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;color:#3a4050}
+.nb.on .nl{color:#00d4ff}
 .card{background:#111118;border:1px solid #1a2030;border-radius:12px;padding:16px;margin-bottom:12px}
-.card-accent{border-color:#00d4ff22}
-.section-label{font-family:‘DM Mono’,monospace;font-size:9px;letter-spacing:2px;color:#555;margin-bottom:6px}
-.section-title{font-family:‘DM Mono’,monospace;font-size:10px;color:#00d4ff;letter-spacing:2px;margin:16px 0 10px}
-.section-title:first-child{margin-top:0}
-
-/* STAT GRID */
-.stat-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
-.stat-box{background:#111118;border:1px solid #1a2030;border-radius:10px;padding:12px 10px}
-.stat-box.hi{border-color:#00d4ff22}
-.stat-lbl{font-family:‘DM Mono’,monospace;font-size:8px;letter-spacing:1.5px;color:#444;margin-bottom:4px}
-.stat-lbl.hi{color:#00d4ff}
-.stat-val{font-size:16px;font-weight:700;line-height:1}
-.stat-val.hi{color:#00d4ff}
-
-/* BUTTONS */
-.btn{border:none;border-radius:8px;cursor:pointer;font-family:‘DM Mono’,monospace;font-weight:700;letter-spacing:1px}
-.btn-primary{background:#00d4ff;color:#000;padding:11px;font-size:13px;width:100%;display:block}
-.btn-ghost{background:none;border:1px solid #1a2030;color:#888;padding:4px 10px;font-size:11px}
-.btn-blue{background:none;border:1px solid #1a2030;color:#00d4ff;padding:4px 10px;font-size:11px}
-.btn-danger{background:none;border:1px solid #3a1a1a;color:#ff4444;padding:9px;font-size:11px;width:100%;margin-top:12px;border-radius:8px;cursor:pointer;font-family:‘DM Mono’,monospace;letter-spacing:1px}
-
-/* INPUTS */
-.inp{width:100%;background:#0d1117;border:1px solid #1a2030;border-radius:8px;padding:9px 12px;color:#e8e8f0;font-size:14px;font-family:‘DM Sans’,sans-serif}
-.field{margin-bottom:12px}
-.field-label{font-size:11px;color:#888;margin-bottom:4px}
-
-/* PROGRESS BAR */
-.pbar-bg{background:#1a2030;border-radius:4px;height:8px;overflow:hidden;margin-bottom:6px}
-.pbar-fill{height:100%;background:linear-gradient(90deg,#00d4ff,#0090ff);border-radius:4px}
-
-/* EXERCISE CARDS */
-.ex-card{background:#111118;border:1px solid #1a2030;border-radius:10px;margin-bottom:8px;overflow:hidden}
-.ex-btn{width:100%;background:none;border:none;padding:12px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;text-align:left}
-.ex-num{width:26px;height:26px;border-radius:50%;background:#1a2030;border:2px solid #2a3040;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:‘DM Mono’,monospace;font-size:9px;color:#555}
-.ex-body{padding:0 14px 14px;border-top:1px solid #1a2030;display:none}
-.ex-body.open{display:block}
-
-/* LOG */
-.log-ex{background:#111118;border:1px solid #1a2030;border-radius:10px;padding:14px;margin-bottom:10px}
-.log-ex.done{background:#0d1a0d;border-color:#1a3020}
-.log-row{display:flex;gap:8px;margin-bottom:6px;align-items:center}
-.log-snum{font-family:‘DM Mono’,monospace;font-size:9px;color:#555;width:16px;flex-shrink:0}
-.mark-btn{padding:4px 10px;background:#1a2030;border:1px solid #2a3040;border-radius:6px;color:#555;font-size:11px;cursor:pointer}
-.mark-btn.done{background:#1a3020;border-color:#3a8050;color:#3a8050}
-
-/* APT */
-.apt-row{display:flex;gap:10px;align-items:center;margin-bottom:8px}
-.apt-dot{width:18px;height:18px;border-radius:50%;border:1px solid #2a4030;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:8px;color:#3a8050;font-family:‘DM Mono’,monospace}
-
-/* COLLAPSIBLE */
-.coll-hdr{width:100%;background:none;border:none;padding:0;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-family:‘DM Mono’,monospace;font-size:9px;letter-spacing:2px;color:#555}
-.coll-hdr.open{color:#00d4ff}
-.coll-body{display:none;padding-top:12px}
-.coll-body.open{display:block}
-.step{display:flex;gap:10px;margin-bottom:10px;align-items:flex-start}
-.step-n{min-width:20px;height:20px;border-radius:50%;background:#0d2030;border:1px solid #00d4ff33;display:flex;align-items:center;justify-content:center;font-size:8px;color:#00d4ff;font-family:‘DM Mono’,monospace;flex-shrink:0}
-.step-t{font-size:11px;color:#aaa;line-height:1.6}
-.step-s{font-size:10px;color:#555;margin-top:2px;line-height:1.5}
-
-/* MODAL */
-#modal{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:none;align-items:center;justify-content:center;z-index:999;padding:20px}
-#modal.open{display:flex}
-#modal-box{background:#111118;border:1px solid #1a2030;border-radius:16px;padding:24px;width:100%;max-width:360px}
-
-/* MISC */
-.warn{background:#1a0f0a;border:1px solid #ff6b3320;border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:12px;color:#cc8866;line-height:1.5}
-.green-card{background:#0d1a0d;border:1px solid #1a3020;border-radius:10px;padding:12px 16px}
-.toggle-bar{display:flex;background:#111118;border-radius:10px;padding:3px;margin-bottom:16px;border:1px solid #1a2030;gap:3px}
-.toggle-opt{flex:1;padding:8px;background:none;border:none;border-radius:8px;font-family:‘DM Mono’,monospace;font-size:11px;color:#555;cursor:pointer;letter-spacing:1px}
-.toggle-opt.active{background:#00d4ff;color:#000;font-weight:700}
-.today-card{border-radius:12px;padding:16px;margin-bottom:16px}
-.row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-.gap8{display:flex;gap:8px}
+.sg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
+.sb{background:#111118;border:1px solid #1a2030;border-radius:10px;padding:12px 10px}
+.sl{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:1.5px;color:#444;margin-bottom:4px}
+.sv{font-size:16px;font-weight:700;line-height:1}
+.pbb{background:#1a2030;border-radius:4px;height:8px;overflow:hidden;margin-bottom:4px}
+.pbf{height:100%;background:linear-gradient(90deg,#00d4ff,#0090ff);border-radius:4px}
+.btn{border:none;border-radius:8px;cursor:pointer;font-family:'DM Mono',monospace;font-weight:700;font-size:12px;padding:8px 14px;letter-spacing:1px}
+.bp{background:#00d4ff;color:#000;width:100%;display:block;padding:11px;font-size:13px}
+.bg{background:none;border:1px solid #1a2030;color:#888;font-size:11px}
+.ba{background:none;border:1px solid #1a2030;color:#00d4ff;font-size:11px}
+.inp{width:100%;background:#0d1117;border:1px solid #1a2030;border-radius:8px;padding:9px 12px;color:#e8e8f0;font-size:14px}
+.st{font-family:'DM Mono',monospace;font-size:10px;color:#00d4ff;letter-spacing:2px;margin:16px 0 10px}
+.st:first-child{margin-top:0}
+.ec{background:#111118;border:1px solid #1a2030;border-radius:10px;margin-bottom:8px;overflow:hidden}
+.eb{width:100%;background:none;border:none;padding:12px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;text-align:left}
+.en{width:26px;height:26px;border-radius:50%;background:#1a2030;border:2px solid #2a3040;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'DM Mono',monospace;font-size:9px;color:#555}
+.ed{padding:0 14px 14px;border-top:1px solid #1a2030;display:none}
+.ed.on{display:block}
+.lx{background:#111118;border:1px solid #1a2030;border-radius:10px;padding:14px;margin-bottom:10px}
+.lx.dn{background:#0d1a0d;border-color:#1a3020}
+.lr{display:flex;gap:8px;margin-bottom:6px;align-items:center}
+.ls{font-family:'DM Mono',monospace;font-size:9px;color:#555;width:16px;flex-shrink:0}
+.mb{padding:4px 10px;background:#1a2030;border:1px solid #2a3040;border-radius:6px;color:#555;font-size:11px;cursor:pointer;border:1px solid #2a3040}
+.mb.dn{background:#1a3020;border-color:#3a8050;color:#3a8050}
+.ar{display:flex;gap:10px;margin-bottom:8px;align-items:flex-start}
+.ad{width:18px;height:18px;border-radius:50%;border:1px solid #2a4030;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:8px;color:#3a8050;font-family:'DM Mono',monospace}
+.ch{width:100%;background:none;border:none;padding:0;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;color:#555;text-align:left}
+.ch.on{color:#00d4ff}
+.cb{display:none;padding-top:12px}
+.cb.on{display:block}
+.sp{display:flex;gap:10px;margin-bottom:10px;align-items:flex-start}
+.sn{min-width:20px;height:20px;border-radius:50%;background:#0d2030;border:1px solid #00d4ff33;display:flex;align-items:center;justify-content:center;font-size:8px;color:#00d4ff;font-family:'DM Mono',monospace;flex-shrink:0}
+.st2{font-size:11px;color:#aaa;line-height:1.6}
+.ss{font-size:10px;color:#555;margin-top:2px;line-height:1.5}
+#overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);display:none;align-items:center;justify-content:center;z-index:999;padding:20px}
+#overlay.on{display:flex}
+#mbox{background:#111118;border:1px solid #1a2030;border-radius:16px;padding:24px;width:100%;max-width:360px}
+.tbar{display:flex;background:#111118;border-radius:10px;padding:3px;margin-bottom:16px;border:1px solid #1a2030;gap:3px}
+.to{flex:1;padding:8px;background:none;border:none;border-radius:8px;font-family:'DM Mono',monospace;font-size:11px;color:#555;cursor:pointer;letter-spacing:1px}
+.to.on{background:#00d4ff;color:#000;font-weight:700}
+.tc{border-radius:12px;padding:16px;margin-bottom:16px}
 </style>
-
 </head>
 <body>
-<div id="app">
-  <!-- HEADER -->
+<div id="wrap">
   <div id="hdr">
-    <div id="hdr-inner">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
       <div>
-        <div class="hdr-forge">FORGE</div>
-        <div class="hdr-title">Fitness Tracker</div>
+        <div style="font-family:'DM Mono',monospace;font-size:10px;color:#00d4ff;letter-spacing:3px;margin-bottom:2px">FORGE</div>
+        <div style="font-size:20px;font-weight:700;letter-spacing:-.5px">Fitness Tracker</div>
       </div>
       <div style="text-align:right">
-        <div id="hdr-date"></div>
-        <div id="hdr-sched"></div>
+        <div id="hdate" style="font-family:'DM Mono',monospace;font-size:9px;color:#555"></div>
+        <div id="hsched" style="margin-top:4px;padding:3px 8px;border-radius:4px;font-size:10px;font-family:'DM Mono',monospace;display:inline-block"></div>
       </div>
     </div>
   </div>
-
-  <!-- SCROLL AREA -->
 
   <div id="scroll">
-    <!-- DASHBOARD -->
-    <div class="page active" id="p-dashboard">
-      <div class="today-card" id="today-card">
-        <div class="section-label">TODAY'S SESSION</div>
-        <div id="today-title" style="font-size:16px;font-weight:600;margin-bottom:4px"></div>
-        <div id="today-sub" style="color:#888;font-size:13px"></div>
+    <div class="pg on" id="pg-dash">
+      <div class="tc" id="tcrd">
+        <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;color:#555;margin-bottom:8px">TODAY'S SESSION</div>
+        <div id="ttl" style="font-size:16px;font-weight:600;margin-bottom:4px"></div>
+        <div id="tsub" style="color:#888;font-size:13px"></div>
       </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;color:#555">BODY STATS</div>
+        <div style="display:flex;gap:8px">
+          <button class="btn ba" id="btn-sync">⟳ Sync</button>
+          <button class="btn bg" id="btn-edit">Edit</button>
+        </div>
+      </div>
+      <div id="smsg" style="display:none;font-family:'DM Mono',monospace;font-size:11px;margin-bottom:8px"></div>
+      <div class="sg">
+        <div class="sb"><div class="sl">WEIGHT</div><div class="sv" id="s0">—</div></div>
+        <div class="sb" style="border-color:#00d4ff22"><div class="sl" style="color:#00d4ff">BODY FAT</div><div class="sv" style="color:#00d4ff" id="s1">—</div></div>
+        <div class="sb"><div class="sl">LEAN MASS</div><div class="sv" id="s2">—</div></div>
+        <div class="sb"><div class="sl">RESTING HR</div><div class="sv" id="s3">—</div></div>
+        <div class="sb"><div class="sl">HRV</div><div class="sv" id="s4">—</div></div>
+        <div class="sb"><div class="sl">WAIST</div><div class="sv" id="s5">—</div></div>
+      </div>
+      <div class="card" style="border-color:#00d4ff22">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+          <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;color:#555">BODY FAT GOAL</div>
+          <div id="bfl" style="font-family:'DM Mono',monospace;font-size:9px;color:#00d4ff"></div>
+        </div>
+        <div class="pbb"><div class="pbf" id="bfb" style="width:0%"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:#444"><span>15% goal</span><span id="bfs"></span></div>
+      </div>
+      <div id="vwarn" style="display:none;background:#1a0f0a;border:1px solid #ff6b3320;border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:12px;color:#cc8866;line-height:1.5"></div>
+      <div style="background:#0d1a0d;border:1px solid #1a3020;border-radius:10px;padding:12px 16px">
+        <div style="font-family:'DM Mono',monospace;font-size:9px;color:#3a8050;letter-spacing:2px;margin-bottom:10px">DAILY APT ROUTINE (5-10 MIN)</div>
+        <div class="ar"><div class="ad">1</div><div><div style="font-size:12px;font-weight:500">Hip Flexor Foam Roll</div><div style="font-size:10px;color:#555">90 sec each side</div></div></div>
+        <div class="ar"><div class="ad">2</div><div><div style="font-size:12px;font-weight:500">Kneeling Hip Flexor Stretch</div><div style="font-size:10px;color:#555">45 sec each side</div></div></div>
+        <div class="ar"><div class="ad">3</div><div><div style="font-size:12px;font-weight:500">Glute Bridge</div><div style="font-size:10px;color:#555">2x20</div></div></div>
+        <div class="ar" style="margin-bottom:0"><div class="ad">4</div><div><div style="font-size:12px;font-weight:500">Dead Bug</div><div style="font-size:10px;color:#555">1x8 each side</div></div></div>
+      </div>
+    </div>
 
 ```
-  <div class="row">
-    <div class="section-label" style="margin:0">BODY STATS</div>
-    <div class="gap8">
-      <button class="btn btn-blue" onclick="doSync()">⟳ Sync</button>
-      <button class="btn btn-ghost" onclick="openModal()">Edit</button>
-    </div>
+<div class="pg" id="pg-plan">
+  <div class="tbar">
+    <button class="to on" id="tog-A">STR A — UPPER</button>
+    <button class="to" id="tog-B">STR B — LOWER</button>
   </div>
-  <div id="sync-msg" style="font-size:11px;font-family:'DM Mono',monospace;margin-bottom:8px;display:none"></div>
-
-  <div class="stat-grid">
-    <div class="stat-box"><div class="stat-lbl">WEIGHT</div><div class="stat-val" id="sv-weight">—</div></div>
-    <div class="stat-box hi"><div class="stat-lbl hi">BODY FAT</div><div class="stat-val hi" id="sv-bf">—</div></div>
-    <div class="stat-box"><div class="stat-lbl">LEAN MASS</div><div class="stat-val" id="sv-lean">—</div></div>
-    <div class="stat-box"><div class="stat-lbl">RESTING HR</div><div class="stat-val" id="sv-hr">—</div></div>
-    <div class="stat-box"><div class="stat-lbl">HRV</div><div class="stat-val" id="sv-hrv">—</div></div>
-    <div class="stat-box"><div class="stat-lbl">WAIST</div><div class="stat-val" id="sv-waist">—</div></div>
-  </div>
-
-  <div class="card card-accent">
-    <div class="row" style="margin-bottom:8px">
-      <div class="section-label" style="margin:0">BODY FAT GOAL</div>
-      <div style="font-family:'DM Mono',monospace;font-size:9px;color:#00d4ff" id="bf-lbl"></div>
-    </div>
-    <div class="pbar-bg"><div class="pbar-fill" id="bf-bar" style="width:0%"></div></div>
-    <div style="display:flex;justify-content:space-between;font-size:10px;color:#444;margin-top:4px">
-      <span>15% goal</span><span id="bf-sub"></span>
-    </div>
-  </div>
-
-  <div id="visceral-warn" class="warn" style="display:none"></div>
-
-  <div class="green-card">
-    <div class="section-label" style="color:#3a8050;margin-bottom:10px">DAILY APT ROUTINE (5-10 MIN)</div>
-    <div class="apt-row"><div class="apt-dot">1</div><div><div style="font-size:12px;font-weight:500">Hip Flexor Foam Roll</div><div style="font-size:10px;color:#555">90 sec each side</div></div></div>
-    <div class="apt-row"><div class="apt-dot">2</div><div><div style="font-size:12px;font-weight:500">Kneeling Hip Flexor Stretch</div><div style="font-size:10px;color:#555">45 sec each side</div></div></div>
-    <div class="apt-row"><div class="apt-dot">3</div><div><div style="font-size:12px;font-weight:500">Glute Bridge</div><div style="font-size:10px;color:#555">2x20</div></div></div>
-    <div class="apt-row" style="margin-bottom:0"><div class="apt-dot">4</div><div><div style="font-size:12px;font-weight:500">Dead Bug</div><div style="font-size:10px;color:#555">1x8 each side</div></div></div>
-  </div>
+  <div id="pfocus" style="font-size:12px;color:#888;margin-bottom:16px"></div>
+  <div id="pcontent"></div>
 </div>
 
-<!-- PLAN -->
-<div class="page" id="p-workout">
-  <div class="toggle-bar">
-    <button class="toggle-opt active" id="tog-A" onclick="switchW('A')">STR A — UPPER</button>
-    <button class="toggle-opt" id="tog-B" onclick="switchW('B')">STR B — LOWER</button>
-  </div>
-  <div id="w-focus" style="font-size:12px;color:#888;margin-bottom:16px"></div>
-  <div id="w-content"></div>
+<div class="pg" id="pg-log">
+  <div id="lcontent"></div>
 </div>
 
-<!-- LOG -->
-<div class="page" id="p-log">
-  <div id="log-content"></div>
+<div class="pg" id="pg-prog">
+  <div class="st" style="margin-top:0">PROGRESS</div>
+  <div id="cw" class="card" style="padding:12px 4px 12px 0"></div>
+  <div id="cb2" class="card" style="padding:12px 4px 12px 0"></div>
+  <div class="card"><div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;color:#555;margin-bottom:8px">TARGETS</div><div id="tgts"></div></div>
 </div>
 
-<!-- PROGRESS -->
-<div class="page" id="p-progress">
-  <div class="section-title" style="margin-top:0">PROGRESS</div>
-  <div id="ch-weight" class="card" style="padding:12px 4px 12px 0"></div>
-  <div id="ch-bf" class="card" style="padding:12px 4px 12px 0"></div>
-  <div class="card">
-    <div class="section-label">TARGETS</div>
-    <div id="targets"></div>
-  </div>
-</div>
-
-<!-- SETTINGS -->
-<div class="page" id="p-settings">
-  <div class="section-title" style="margin-top:0">SETTINGS</div>
-
+<div class="pg" id="pg-set">
+  <div class="st" style="margin-top:0">SETTINGS</div>
   <div class="card" style="margin-bottom:12px">
-    <button class="coll-hdr open" id="ch-url" onclick="toggleC('url')">PIPEDREAM URL <span id="ca-url">▲</span></button>
-    <div class="coll-body open" id="cb-url">
-      <div style="font-size:11px;color:#666;margin-bottom:10px">Paste your Pipedream webhook URL. Used by the Sync button.</div>
-      <input class="inp" id="url-inp" placeholder="https://your-endpoint.m.pipedream.net/..."/>
-      <button class="btn btn-primary" style="margin-top:10px" onclick="saveUrl()">SAVE URL</button>
-      <div style="font-family:'DM Mono',monospace;font-size:10px;color:#444;margin-top:8px;text-align:center" id="sync-ts"></div>
+    <button class="ch on" id="ch-url">PIPEDREAM URL <span id="ca-url">▲</span></button>
+    <div class="cb on" id="cb-url">
+      <div style="font-size:11px;color:#666;margin-bottom:10px">Paste your Pipedream URL. Used by the Sync button.</div>
+      <input class="inp" id="urlinp" placeholder="https://your-endpoint.m.pipedream.net/..."/>
+      <button class="btn bp" id="btn-saveurl" style="margin-top:10px">SAVE URL</button>
+      <div id="syncts" style="font-family:'DM Mono',monospace;font-size:10px;color:#444;margin-top:8px;text-align:center"></div>
     </div>
   </div>
-
   <div class="card" style="margin-bottom:12px">
-    <button class="coll-hdr" id="ch-pd" onclick="toggleC('pd')">STEP 1 — PIPEDREAM SETUP <span id="ca-pd">▼</span></button>
-    <div class="coll-body" id="cb-pd">
-      <div style="font-size:11px;color:#666;margin-bottom:12px">Free at <b style="color:#00d4ff">pipedream.com</b>. When asked, choose <b style="color:#fff">"Building automations"</b>.</div>
-      <div class="step"><div class="step-n">1</div><div><div class="step-t">pipedream.com → sign up → New Project → New → Workflow</div></div></div>
-      <div class="step"><div class="step-n">2</div><div><div class="step-t">Trigger: "HTTP / Webhook" → Generate URL → copy it</div><div class="step-s">Paste this URL in the Shortcut.</div></div></div>
-      <div class="step"><div class="step-n">3</div><div><div class="step-t">+ step → "Data Stores" → Set Record</div><div class="step-s">Store: "health_data" · Key: "latest" · Value: {{steps.trigger.event.body}}</div></div></div>
-      <div class="step"><div class="step-n">4</div><div><div class="step-t">+ step → HTTP Response → Body: {{steps.data_store.$return_value}}</div></div></div>
-      <div class="step"><div class="step-n">5</div><div><div class="step-t">Click Deploy. Done.</div></div></div>
+    <button class="ch" id="ch-pd">STEP 1 — PIPEDREAM SETUP <span id="ca-pd">▼</span></button>
+    <div class="cb" id="cb-pd">
+      <div style="font-size:11px;color:#666;margin-bottom:12px;margin-top:4px">Free at <b style="color:#00d4ff">pipedream.com</b>. Choose <b style="color:#fff">"Building automations"</b>.</div>
+      <div class="sp"><div class="sn">1</div><div><div class="st2">pipedream.com → sign up → New Project → New → Workflow</div></div></div>
+      <div class="sp"><div class="sn">2</div><div><div class="st2">Trigger: HTTP/Webhook → Generate URL → copy it</div><div class="ss">Paste in Shortcut below</div></div></div>
+      <div class="sp"><div class="sn">3</div><div><div class="st2">+ step → Data Stores → Set Record</div><div class="ss">Store: "health_data" · Key: "latest" · Value: {{steps.trigger.event.body}}</div></div></div>
+      <div class="sp"><div class="sn">4</div><div><div class="st2">+ step → HTTP Response → Body: {{steps.data_store.$return_value}}</div></div></div>
+      <div class="sp"><div class="sn">5</div><div><div class="st2">Deploy. Done.</div></div></div>
     </div>
   </div>
-
   <div class="card" style="margin-bottom:12px">
-    <button class="coll-hdr" id="ch-sc" onclick="toggleC('sc')">STEP 2 — BUILD THE SHORTCUT <span id="ca-sc">▼</span></button>
-    <div class="coll-body" id="cb-sc">
-      <div style="font-size:11px;color:#666;margin-bottom:12px">Shortcuts app → <b style="color:#fff">+</b> → name it <b style="color:#fff">"Sync Health to FORGE"</b></div>
-      <div class="step"><div class="step-n">1</div><div><div class="step-t">Get Contents of Health → Weight → Most Recent → Last Day</div><div class="step-s">Rename variable "weight"</div></div></div>
-      <div class="step"><div class="step-n">2</div><div><div class="step-t">Body Fat % → Average → Last Day → rename "bodyFat"</div></div></div>
-      <div class="step"><div class="step-n">3</div><div><div class="step-t">Resting Heart Rate → Average → Last Day → rename "restingHR"</div></div></div>
-      <div class="step"><div class="step-n">4</div><div><div class="step-t">Heart Rate Variability → Average → Last Day → rename "hrv"</div></div></div>
-      <div class="step"><div class="step-n">5</div><div><div class="step-t">Step Count → Sum → Last Day → rename "steps"</div></div></div>
-      <div class="step"><div class="step-n">6</div><div><div class="step-t">Active Energy Burned → Sum → Last Day → rename "activeCalories"</div></div></div>
-      <div class="step"><div class="step-n">7</div><div><div class="step-t">Dictionary — add all 6 variables + syncedAt → Current Date</div></div></div>
-      <div class="step"><div class="step-n">8</div><div><div class="step-t">Get Contents of URL</div><div class="step-s">URL: Pipedream URL · Method: POST · Content-Type: application/json · Body: JSON → your Dictionary</div></div></div>
-      <div class="step"><div class="step-n">9</div><div><div class="step-t">Tap Done. Run once manually to test.</div></div></div>
+    <button class="ch" id="ch-sc">STEP 2 — BUILD THE SHORTCUT <span id="ca-sc">▼</span></button>
+    <div class="cb" id="cb-sc">
+      <div style="font-size:11px;color:#666;margin-bottom:12px;margin-top:4px">Shortcuts app → + → name: <b style="color:#fff">"Sync Health to FORGE"</b></div>
+      <div class="sp"><div class="sn">1</div><div><div class="st2">Get Contents of Health → Weight → Most Recent → Last Day → rename "weight"</div></div></div>
+      <div class="sp"><div class="sn">2</div><div><div class="st2">Body Fat % → Average → Last Day → rename "bodyFat"</div></div></div>
+      <div class="sp"><div class="sn">3</div><div><div class="st2">Resting Heart Rate → Average → Last Day → rename "restingHR"</div></div></div>
+      <div class="sp"><div class="sn">4</div><div><div class="st2">Heart Rate Variability → Average → Last Day → rename "hrv"</div></div></div>
+      <div class="sp"><div class="sn">5</div><div><div class="st2">Step Count → Sum → Last Day → rename "steps"</div></div></div>
+      <div class="sp"><div class="sn">6</div><div><div class="st2">Dictionary — all 6 variables + syncedAt → Current Date</div></div></div>
+      <div class="sp"><div class="sn">7</div><div><div class="st2">Get Contents of URL → POST → Content-Type: application/json → Body: JSON → Dictionary</div></div></div>
+      <div class="sp"><div class="sn">8</div><div><div class="st2">Done. Run once manually to test.</div></div></div>
     </div>
   </div>
-
   <div class="card" style="margin-bottom:12px">
-    <button class="coll-hdr" id="ch-au" onclick="toggleC('au')">STEP 3 — 3 AUTOMATIONS <span id="ca-au">▼</span></button>
-    <div class="coll-body" id="cb-au">
-      <div style="font-size:11px;color:#666;margin-bottom:12px">Shortcuts → Automation tab → + for each. Set <b style="color:#fff">Run Immediately = ON</b>.</div>
+    <button class="ch" id="ch-au">STEP 3 — 3 AUTOMATIONS <span id="ca-au">▼</span></button>
+    <div class="cb" id="cb-au">
+      <div style="font-size:11px;color:#666;margin-bottom:12px;margin-top:4px">Shortcuts → Automation tab → + each. Set <b style="color:#fff">Run Immediately ON</b>.</div>
       <div style="background:#0d1117;border:1px solid #1a2030;border-radius:8px;padding:12px;margin-bottom:8px">
         <div style="font-family:'DM Mono',monospace;font-size:9px;color:#00d4ff;margin-bottom:6px">MORNING</div>
         <div style="font-size:11px;color:#aaa;line-height:1.8">Trigger: Time of Day → 8:00 AM Daily<br>Action: Run Shortcut → Sync Health to FORGE<br>Run Immediately: ON</div>
@@ -271,462 +202,355 @@
       </div>
     </div>
   </div>
-
-  <div class="card" style="margin-bottom:12px">
-    <button class="coll-hdr" id="ch-hs" onclick="toggleC('hs')">ADD TO HOME SCREEN <span id="ca-hs">▼</span></button>
-    <div class="coll-body" id="cb-hs">
-      <div class="step"><div class="step-n">1</div><div><div class="step-t">Open in Safari (not Chrome)</div></div></div>
-      <div class="step"><div class="step-n">2</div><div><div class="step-t">Tap the Share button (box with arrow)</div></div></div>
-      <div class="step"><div class="step-n">3</div><div><div class="step-t">"Add to Home Screen" → "Add"</div></div></div>
-    </div>
-  </div>
-
   <div class="card" style="margin-bottom:20px">
-    <div class="section-label">DATA</div>
-    <div style="font-size:11px;color:#555;line-height:1.7">All data saves locally in your browser. Claude can update your plan or stats from conversations.</div>
-    <div style="font-family:'DM Mono',monospace;font-size:9px;color:#333;margin-top:6px" id="upd-ts"></div>
-    <button class="btn-danger" onclick="resetData()">RESET ALL DATA TO DEFAULTS</button>
+    <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;color:#555;margin-bottom:6px">DATA</div>
+    <div style="font-size:11px;color:#555;line-height:1.7">All data saves locally. Claude can update your plan or stats from conversations.</div>
+    <div id="updts" style="font-family:'DM Mono',monospace;font-size:9px;color:#333;margin-top:6px"></div>
+    <button id="btn-reset" style="margin-top:12px;width:100%;padding:9px;background:none;border:1px solid #3a1a1a;border-radius:8px;color:#ff4444;font-size:11px;font-family:'DM Mono',monospace;letter-spacing:1px;cursor:pointer">RESET ALL DATA TO DEFAULTS</button>
   </div>
 </div>
 ```
 
-  </div><!-- /scroll -->
-
-  <!-- NAV -->
+  </div>
 
   <div id="nav">
-    <button class="nav-btn active" id="nb-dashboard" onclick="goTab('dashboard')">
-      <div class="nav-icon">⚡</div><div class="nav-label">HOME</div>
-    </button>
-    <button class="nav-btn" id="nb-workout" onclick="goTab('workout')">
-      <div class="nav-icon">📋</div><div class="nav-label">PLAN</div>
-    </button>
-    <button class="nav-btn" id="nb-log" onclick="goTab('log')">
-      <div class="nav-icon">✏️</div><div class="nav-label">LOG</div>
-    </button>
-    <button class="nav-btn" id="nb-progress" onclick="goTab('progress')">
-      <div class="nav-icon">📈</div><div class="nav-label">PROGRESS</div>
-    </button>
-    <button class="nav-btn" id="nb-settings" onclick="goTab('settings')">
-      <div class="nav-icon">⚙️</div><div class="nav-label">SETTINGS</div>
-    </button>
+    <button class="nb on" id="nb-dash"><div class="ni">⚡</div><div class="nl">HOME</div></button>
+    <button class="nb" id="nb-plan"><div class="ni">📋</div><div class="nl">PLAN</div></button>
+    <button class="nb" id="nb-log"><div class="ni">✏️</div><div class="nl">LOG</div></button>
+    <button class="nb" id="nb-prog"><div class="ni">📈</div><div class="nl">PROGRESS</div></button>
+    <button class="nb" id="nb-set"><div class="ni">⚙️</div><div class="nl">SETTINGS</div></button>
   </div>
 </div>
 
-<!-- EDIT MODAL -->
-
-<div id="modal">
-  <div id="modal-box">
+<div id="overlay">
+  <div id="mbox">
     <div style="font-family:'DM Mono',monospace;font-size:11px;color:#00d4ff;letter-spacing:2px;margin-bottom:16px">UPDATE STATS</div>
-    <div class="field"><div class="field-label">Weight (lbs)</div><input class="inp" id="m-weight"/></div>
-    <div class="field"><div class="field-label">Body Fat %</div><input class="inp" id="m-bf"/></div>
-    <div class="field"><div class="field-label">Waist (inches)</div><input class="inp" id="m-waist"/></div>
-    <div class="field"><div class="field-label">Resting HR (bpm)</div><input class="inp" id="m-hr"/></div>
-    <div class="field" style="margin-bottom:16px"><div class="field-label">HRV (ms)</div><input class="inp" id="m-hrv"/></div>
+    <div style="margin-bottom:12px"><div style="font-size:11px;color:#888;margin-bottom:4px">Weight (lbs)</div><input class="inp" id="mw"/></div>
+    <div style="margin-bottom:12px"><div style="font-size:11px;color:#888;margin-bottom:4px">Body Fat %</div><input class="inp" id="mbf"/></div>
+    <div style="margin-bottom:12px"><div style="font-size:11px;color:#888;margin-bottom:4px">Waist (inches)</div><input class="inp" id="mwa"/></div>
+    <div style="margin-bottom:12px"><div style="font-size:11px;color:#888;margin-bottom:4px">Resting HR</div><input class="inp" id="mhr"/></div>
+    <div style="margin-bottom:16px"><div style="font-size:11px;color:#888;margin-bottom:4px">HRV (ms)</div><input class="inp" id="mhv"/></div>
     <div style="display:flex;gap:10px">
-      <button onclick="closeModal()" style="flex:1;padding:10px;background:#1a2030;border:none;border-radius:8px;color:#888;cursor:pointer">Cancel</button>
-      <button onclick="saveModal()" style="flex:1;padding:10px;background:#00d4ff;border:none;border-radius:8px;color:#000;font-weight:700;cursor:pointer">Save</button>
+      <button id="btn-cancel" style="flex:1;padding:10px;background:#1a2030;border:none;border-radius:8px;color:#888;cursor:pointer">Cancel</button>
+      <button id="btn-saveedit" style="flex:1;padding:10px;background:#00d4ff;border:none;border-radius:8px;color:#000;font-weight:700;cursor:pointer">Save</button>
     </div>
   </div>
 </div>
 
 <script>
-// ── WORKOUT DATA ──────────────────────────────────────────────────────────
-var WK = {
-  A: {
-    focus: "Upper Body / Core / Taper",
-    warmup: [
-      {name:"Band Pull-Apart",sets:"2x20",band:"Yellow",cue:"Hold at shoulder width, pull apart horizontally. Resets posture."},
+(function(){
+
+// ── DATA ────────────────────────────────────────────────────────────────────
+var WK={
+  A:{focus:"Upper Body / Core / Taper",
+    warmup:[
+      {name:"Band Pull-Apart",sets:"2x20",band:"Yellow",cue:"Hold at shoulder width, pull apart horizontally until fully stretched."},
       {name:"Thoracic Foam Roll",sets:"2 min",band:"No band",cue:"Lie with roller at mid-back. Extend over it, pause at tight spots."}
     ],
-    exercises: [
-      {name:"Self-Anchored Band Press",sets:3,reps:12,band:"Green→Red",cue:"Loop band behind shoulder blades. Press handles forward and slightly together. Slight forward lean.",muscles:"Chest, anterior deltoid, triceps"},
-      {name:"Banded Bent-Over Row",sets:3,reps:12,band:"Red or Grey",cue:"Stand on band. Hinge 45°, flat back. Pull to lower ribcage, elbows back. Hold 2 sec at top. #1 V-taper builder.",muscles:"Lats, rhomboids, rear delts"},
-      {name:"Banded Lateral Raise",sets:3,reps:15,band:"Yellow or Blue",cue:"Stand on band. Raise arms to shoulder height, slight forward angle. 2-sec descent. Don't shrug.",muscles:"Medial deltoid"},
-      {name:"Seated Band Face Pull",sets:3,reps:15,band:"Blue or Green",cue:"Sit on floor, loop band around feet. Pull toward face, elbows HIGH. Finish thumbs pointing behind you.",muscles:"Rear delts, external rotators"},
+    exercises:[
+      {name:"Self-Anchored Band Press",sets:3,reps:12,band:"Green→Red",cue:"Loop band behind shoulder blades. Press handles forward and together. Slight forward lean.",muscles:"Chest, anterior deltoid, triceps"},
+      {name:"Banded Bent-Over Row",sets:3,reps:12,band:"Red or Grey",cue:"Stand on band. Hinge 45°, flat back. Pull to lower ribcage, elbows back. Hold 2 sec. #1 V-taper builder.",muscles:"Lats, rhomboids, rear delts"},
+      {name:"Banded Lateral Raise",sets:3,reps:15,band:"Yellow or Blue",cue:"Stand on band. Raise to shoulder height. 2-sec descent. Don't shrug.",muscles:"Medial deltoid"},
+      {name:"Seated Band Face Pull",sets:3,reps:15,band:"Blue or Green",cue:"Sit, loop band around feet. Pull toward face, elbows HIGH. Finish thumbs pointing behind you.",muscles:"Rear delts, external rotators"},
       {name:"Overhead Tricep Extension",sets:3,reps:12,band:"Blue or Green",cue:"Stand on band. Handles behind head, elbows up. Extend upward. Safe for elbow nerve.",muscles:"Tricep long head"},
-      {name:"Banded Bicep Curl",sets:3,reps:12,band:"Green",cue:"Stand on band. Curl to shoulders, elbows pinned. 2-sec descent.",muscles:"Biceps, brachialis"}
+      {name:"Banded Bicep Curl",sets:3,reps:12,band:"Green",cue:"Stand on band. Curl to shoulders, elbows pinned. 2-sec descent.",muscles:"Biceps"}
     ],
-    core: [
-      {name:"Dead Bug",sets:3,reps:"8 each side",band:"No band",cue:"On back, arms up, knees 90°. Press lower back INTO floor. Lower opposite arm/leg. #1 APT correction.",muscles:"Deep core, transverse abdominis"},
-      {name:"Band Woodchop",sets:2,reps:"12 each side",band:"Green",cue:"Stand on band end. Both hands on handle near opposite hip. Rotate/chop diagonally upward.",muscles:"Obliques, rotational core"},
-      {name:"Hollow Body Hold",sets:3,reps:"15-20 sec",band:"No band",cue:"Back flat, arms overhead, press lower back to floor, lift shoulders and feet slightly.",muscles:"Lower abs, transverse abdominis"},
+    core:[
+      {name:"Dead Bug",sets:3,reps:"8 each side",band:"No band",cue:"On back, arms up, knees 90°. Press lower back INTO floor. Lower opposite arm/leg. #1 APT correction.",muscles:"Deep core"},
+      {name:"Band Woodchop",sets:2,reps:"12 each side",band:"Green",cue:"Stand on band. Both hands near opposite hip. Rotate/chop diagonally upward.",muscles:"Obliques"},
+      {name:"Hollow Body Hold",sets:3,reps:"15-20 sec",band:"No band",cue:"Back flat, arms overhead, press lower back to floor, lift shoulders and feet slightly.",muscles:"Lower abs"},
       {name:"Copenhagen Side Plank",sets:3,reps:"20-30 sec",band:"No band",cue:"Top foot on chair edge. Hold side plank.",muscles:"Adductors, obliques"}
     ]
   },
-  B: {
-    focus: "Lower Body / Core / Lower Abs",
-    warmup: [
-      {name:"Bodyweight Glute Bridge",sets:"2x20",band:"No band",cue:"Drive hips up, squeeze hard at top, posterior tilt. Hold 2 sec."},
+  B:{focus:"Lower Body / Core / Lower Abs",
+    warmup:[
+      {name:"Bodyweight Glute Bridge",sets:"2x20",band:"No band",cue:"Drive hips up, squeeze hard, posterior tilt. Hold 2 sec."},
       {name:"Foam Roll Hip Flexors",sets:"2 min",band:"No band",cue:"Roll front of hip and upper quad. Pause at tender spots."}
     ],
-    exercises: [
-      {name:"Bulgarian Split Squat",sets:3,reps:10,band:"Backpack load",cue:"Rear foot on couch. Front foot forward, knee behind toes. Drive through heel. Torso upright.",muscles:"Quads, glutes"},
+    exercises:[
+      {name:"Bulgarian Split Squat",sets:3,reps:10,band:"Backpack load",cue:"Rear foot on couch. Front foot forward. Drive through heel. Torso upright.",muscles:"Quads, glutes"},
       {name:"Hip Thrust",sets:3,reps:15,band:"Loaded backpack",cue:"Shoulders on couch, backpack on hip crease. Drive up, SQUEEZE glutes, posterior tilt at top. #1 APT correction.",muscles:"Glutes, hamstrings"},
       {name:"Single-Leg Romanian Deadlift",sets:3,reps:10,band:"Water jug",cue:"Hinge forward, same-side leg extends back. Flat back. 3-sec descent.",muscles:"Hamstrings, glutes, balance"},
-      {name:"Banded Lateral Walk",sets:3,reps:"15 steps each way",band:"Green or Red",cue:"Band around ankles. Stay in slight squat. Controlled steps.",muscles:"Glute medius, hip abductors"},
-      {name:"Banded Clamshell",sets:3,reps:20,band:"Yellow or Blue",cue:"Lie on side, knees bent 90°. Rotate top knee up without rocking hips.",muscles:"Glute medius, hip external rotators"}
+      {name:"Banded Lateral Walk",sets:3,reps:"15 steps each way",band:"Green or Red",cue:"Band around ankles. Stay in slight squat. Controlled steps.",muscles:"Glute medius"},
+      {name:"Banded Clamshell",sets:3,reps:20,band:"Yellow or Blue",cue:"Lie on side, knees bent 90°. Rotate top knee up without rocking.",muscles:"Glute medius, hip external rotators"}
     ],
-    core: [
-      {name:"Reverse Crunch",sets:3,reps:15,band:"No band",cue:"Curl the PELVIS upward, not just legs. Slow lower.",muscles:"Lower abs"},
-      {name:"Lying Leg Raise",sets:3,reps:12,band:"No band",cue:"Hands under glutes. Raise straight legs to 90°, lower without arching back.",muscles:"Lower abs, hip flexors"},
+    core:[
+      {name:"Reverse Crunch",sets:3,reps:15,band:"No band",cue:"Curl the PELVIS upward. Slow lower.",muscles:"Lower abs"},
+      {name:"Lying Leg Raise",sets:3,reps:12,band:"No band",cue:"Hands under glutes. Raise legs to 90°, lower without arching.",muscles:"Lower abs"},
       {name:"Dead Bug",sets:3,reps:"8 each side",band:"No band",cue:"Daily APT correction. Lower back stays glued to floor.",muscles:"Deep core"},
-      {name:"Flutter Kicks",sets:3,reps:"20 sec",band:"No band",cue:"Hands under glutes, legs low, small rapid kicks. Lower back pressed down.",muscles:"Lower abs"}
+      {name:"Flutter Kicks",sets:3,reps:"20 sec",band:"No band",cue:"Hands under glutes, legs low, small rapid kicks.",muscles:"Lower abs"}
     ]
   }
 };
 
 var W1=["A","CardioA","B","CardioB","A","Leisure","Rest"];
 var W2=["B","CardioA","A","CardioB","B","Leisure","Rest"];
-
-function getSched(ds){
-  var base=new Date("2026-02-16T00:00:00");
-  var d=new Date(ds+"T00:00:00");
-  var diff=Math.floor((d-base)/86400000);
+function sched(ds){
+  var b=new Date("2026-02-16T00:00:00"),d=new Date(ds+"T00:00:00");
+  var diff=Math.floor((d-b)/86400000);
   if(diff<0)return"Rest";
   var c=((diff%14)+14)%14;
   return c<7?W1[c]:W2[c-7];
 }
-function today(){return new Date().toISOString().slice(0,10);}
-function el(id){return document.getElementById(id);}
+function td(){return new Date().toISOString().slice(0,10);}
+function g(id){return document.getElementById(id);}
 
-// ── STORAGE ───────────────────────────────────────────────────────────────
-function load(k){try{var v=localStorage.getItem('fg_'+k);return v?JSON.parse(v):null;}catch(e){return null;}}
-function save(k,v){try{localStorage.setItem('fg_'+k,JSON.stringify(v));}catch(e){}}
+// ── STORAGE ─────────────────────────────────────────────────────────────────
+var PFX='fg2_';
+function ld(k){try{var v=localStorage.getItem(PFX+k);return v?JSON.parse(v):null;}catch(e){return null;}}
+function sv(k,v){try{localStorage.setItem(PFX+k,JSON.stringify(v));}catch(e){}}
 
 var DEF={weight:149.6,bodyFat:23.0,fatMass:34.4,leanMass:115.1,bmi:22.9,visceralFat:9.0,waist:null,restingHR:70,hrv:24,updatedAt:"2026-03-01"};
-
-function loadStats(){
-  var s=load('stats');
+function getStats(){
+  var s=ld('s');
   if(!s||typeof s!=='object')return Object.assign({},DEF);
-  var out=Object.assign({},DEF);
-  ['weight','bodyFat','fatMass','leanMass','bmi','visceralFat','restingHR','hrv'].forEach(function(k){
-    var v=parseFloat(s[k]);if(v>0&&!isNaN(v))out[k]=v;
-  });
-  if(s.waist){var w=parseFloat(s.waist);if(w>0)out.waist=w;}
-  if(s.updatedAt)out.updatedAt=s.updatedAt;
-  return out;
+  var o=Object.assign({},DEF);
+  ['weight','bodyFat','fatMass','leanMass','bmi','visceralFat','restingHR','hrv'].forEach(function(k){var v=parseFloat(s[k]);if(v>0&&!isNaN(v))o[k]=v;});
+  if(s.waist){var w=parseFloat(s.waist);if(w>0)o.waist=w;}
+  if(s.updatedAt)o.updatedAt=s.updatedAt;
+  return o;
 }
+var stats=getStats();
+var logs=ld('l')||{};
+var prog=(function(){var p=ld('p');return(p&&p.length)?p:[{date:"2026-03-01",weight:149.6,bodyFat:23.0}];})();
+var cfg=Object.assign({webhookUrl:"https://eoyovtw43hp8ksp.m.pipedream.net",lastSync:null},ld('c')||{});
 
-var stats=loadStats();
-var logs=load('logs')||{};
-var progress=(function(){var p=load('progress');return(p&&p.length)?p:[{date:"2026-03-01",weight:149.6,bodyFat:23.0}];})();
-var cfg=Object.assign({webhookUrl:"https://eoyovtw43hp8ksp.m.pipedream.net",lastSync:null},load('cfg')||{});
-
-// URL reset
 if(location.search.indexOf('reset')!==-1){
-  ['stats','logs','progress','cfg'].forEach(function(k){localStorage.removeItem('fg_'+k);});
+  ['s','l','p','c'].forEach(function(k){localStorage.removeItem(PFX+k);});
+  // also clear old keys from previous versions
+  ['fg_stats','fg_logs','fg_progress','fg_cfg','forge_stats','forge_logs','forge_progress','forge_settings'].forEach(function(k){localStorage.removeItem(k);});
   location.href=location.pathname;
 }
 
-// ── TABS ──────────────────────────────────────────────────────────────────
-var curTab='dashboard';
+// ── TABS ─────────────────────────────────────────────────────────────────────
+var pages=['dash','plan','log','prog','set'];
 function goTab(t){
-  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
-  el('p-'+t).classList.add('active');
-  document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active');});
-  el('nb-'+t).classList.add('active');
-  el('scroll').scrollTop=0;
-  curTab=t;
+  pages.forEach(function(p){
+    g('pg-'+p).classList.toggle('on',p===t);
+    g('nb-'+p).classList.toggle('on',p===t);
+  });
+  g('scroll').scrollTop=0;
   if(t==='log')renderLog();
-  if(t==='progress')renderProgress();
-  if(t==='settings'){
-    el('url-inp').value=cfg.webhookUrl||'';
-    el('sync-ts').textContent=cfg.lastSync?'Last sync: '+cfg.lastSync:'';
-    el('upd-ts').textContent=stats.updatedAt?'Last stats update: '+stats.updatedAt:'';
-  }
+  if(t==='prog')renderProg();
+  if(t==='set'){g('urlinp').value=cfg.webhookUrl||'';g('syncts').textContent=cfg.lastSync?'Last sync: '+cfg.lastSync:'';g('updts').textContent=stats.updatedAt?'Last update: '+stats.updatedAt:'';}
 }
 
-// ── HEADER ────────────────────────────────────────────────────────────────
-function initHeader(){
-  var sched=getSched(today());
-  el('hdr-date').textContent=new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
-  var labels={A:'STR A',B:'STR B',CardioA:'CARDIO A',CardioB:'CARDIO B',Leisure:'LEISURE',Rest:'REST'};
-  var s=el('hdr-sched');
-  s.textContent=labels[sched]||sched;
-  if(sched==='A'||sched==='B'){s.style.cssText='background:#0d2030;border:1px solid #00d4ff44;color:#00d4ff;margin-top:4px;padding:3px 8px;border-radius:4px;font-size:10px;font-family:"DM Mono",monospace;display:inline-block';}
-  else{s.style.cssText='background:#1a1a2a;border:1px solid #2a2a3a;color:#555;margin-top:4px;padding:3px 8px;border-radius:4px;font-size:10px;font-family:"DM Mono",monospace;display:inline-block';}
+// ── HEADER ───────────────────────────────────────────────────────────────────
+function initHdr(){
+  var sc=sched(td());
+  g('hdate').textContent=new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+  var lbl={A:'STR A',B:'STR B',CardioA:'CARDIO A',CardioB:'CARDIO B',Leisure:'LEISURE',Rest:'REST'};
+  var el=g('hsched');el.textContent=lbl[sc]||sc;
+  var isStr=(sc==='A'||sc==='B');
+  el.style.background=isStr?'#0d2030':'#1a1a2a';
+  el.style.border='1px solid '+(isStr?'#00d4ff44':'#2a2a3a');
+  el.style.color=isStr?'#00d4ff':'#555';
 }
 
-// ── DASHBOARD ─────────────────────────────────────────────────────────────
+// ── DASHBOARD ────────────────────────────────────────────────────────────────
 function renderDash(){
-  var sched=getSched(today());
-  var dayMap={
-    A:['Strength A','Upper Body / Core / Taper','#00d4ff'],
-    B:['Strength B','Lower Body / Core / Lower Abs','#00d4ff'],
-    CardioA:['Cardio A — Intervals','1 mile jog/walk, HR 140–165 bpm','#e8e8f0'],
-    CardioB:['Cardio B — Zone 2','30 min walk, HR 100–130 bpm','#e8e8f0'],
-    Leisure:['Leisure Day','Hike or long walk, 45–90 min','#e8e8f0'],
-    Rest:['Rest Day','Recover well. 💤','#555']
-  };
-  var info=dayMap[sched]||['—','','#e8e8f0'];
-  el('today-title').textContent=info[0];
-  el('today-title').style.color=info[2];
-  el('today-sub').textContent=info[1];
-  var tc=el('today-card');
-  if(sched==='A'||sched==='B'){tc.style.cssText='background:linear-gradient(135deg,#0a1628,#0d2040);border:1px solid #00d4ff33;border-radius:12px;padding:16px;margin-bottom:16px';}
-  else{tc.style.cssText='background:#111118;border:1px solid #1a1a2a;border-radius:12px;padding:16px;margin-bottom:16px';}
-
-  el('sv-weight').textContent=stats.weight+' lb';
-  el('sv-bf').textContent=stats.bodyFat+'%';
-  el('sv-lean').textContent=stats.leanMass+' lb';
-  el('sv-hr').textContent=stats.restingHR+' bpm';
-  el('sv-hrv').textContent=stats.hrv+' ms';
-  el('sv-waist').textContent=stats.waist?stats.waist+'"':'—';
-
+  var sc=sched(td());
+  var dm={A:['Strength A','Upper Body / Core / Taper','#00d4ff'],B:['Strength B','Lower Body / Core / Lower Abs','#00d4ff'],CardioA:['Cardio A — Intervals','1 mile jog/walk, HR 140–165 bpm','#e8e8f0'],CardioB:['Cardio B — Zone 2','30 min walk, HR 100–130 bpm','#e8e8f0'],Leisure:['Leisure Day','Hike or long walk, 45–90 min','#e8e8f0'],Rest:['Rest Day','Recover well 💤','#555']};
+  var info=dm[sc]||['—','','#e8e8f0'];
+  g('ttl').textContent=info[0];g('ttl').style.color=info[2];g('tsub').textContent=info[1];
+  var tc=g('tcrd');
+  var isStr=(sc==='A'||sc==='B');
+  tc.style.background=isStr?'linear-gradient(135deg,#0a1628,#0d2040)':'#111118';
+  tc.style.border='1px solid '+(isStr?'#00d4ff33':'#1a1a2a');
+  g('s0').textContent=stats.weight+' lb';
+  g('s1').textContent=stats.bodyFat+'%';
+  g('s2').textContent=stats.leanMass+' lb';
+  g('s3').textContent=stats.restingHR+' bpm';
+  g('s4').textContent=stats.hrv+' ms';
+  g('s5').textContent=stats.waist?stats.waist+'"':'—';
   var pct=Math.max(0,Math.min(100,((stats.bodyFat-15)/(23-15))*100));
-  el('bf-bar').style.width=Math.round(100-pct)+'%';
-  el('bf-lbl').textContent=stats.bodyFat+'% → 15%';
-  el('bf-sub').textContent='~'+((stats.bodyFat-15)/100*stats.weight).toFixed(1)+' lbs to lose';
-
-  var vw=el('visceral-warn');
-  if(stats.visceralFat>=8){vw.style.display='block';vw.innerHTML='⚠️ Visceral Fat <b style="color:#ff6b33">'+stats.visceralFat+'</b> — borderline. Zone 2 cardio + low-carb are your fastest levers.';}
+  g('bfb').style.width=Math.round(100-pct)+'%';
+  g('bfl').textContent=stats.bodyFat+'% → 15%';
+  g('bfs').textContent='~'+((stats.bodyFat-15)/100*stats.weight).toFixed(1)+' lbs to lose';
+  var vw=g('vwarn');
+  if(stats.visceralFat>=8){vw.style.display='block';vw.innerHTML='⚠️ Visceral Fat <b style="color:#ff6b33">'+stats.visceralFat+'</b> — borderline. Zone 2 + low-carb are your fastest levers.';}
   else vw.style.display='none';
 }
 
-// ── SYNC ──────────────────────────────────────────────────────────────────
+// ── SYNC ─────────────────────────────────────────────────────────────────────
 function doSync(){
-  var msg=el('sync-msg');
-  if(!cfg.webhookUrl){msg.style.display='block';msg.style.color='#ff4444';msg.textContent='No URL in Settings.';return;}
-  msg.style.display='block';msg.style.color='#00d4ff';msg.textContent='Syncing...';
-  fetch(cfg.webhookUrl).then(function(r){
-    if(!r.ok)throw new Error('HTTP '+r.status);
-    return r.json();
-  }).then(function(data){
-    if(data.weight)stats.weight=parseFloat(data.weight);
-    if(data.bodyFat)stats.bodyFat=parseFloat(data.bodyFat);
-    if(data.restingHR)stats.restingHR=parseFloat(data.restingHR);
-    if(data.hrv)stats.hrv=parseFloat(data.hrv);
-    stats.updatedAt=today();
-    save('stats',stats);
-    progress.push({date:today(),weight:stats.weight,bodyFat:stats.bodyFat});
-    save('progress',progress);
-    cfg.lastSync=new Date().toLocaleString();
-    save('cfg',cfg);
-    msg.textContent='✓ Synced!';
-    renderDash();
-    setTimeout(function(){msg.style.display='none';},3000);
-  }).catch(function(e){
-    msg.style.color='#ff4444';
-    msg.textContent='Failed: '+e.message;
-    setTimeout(function(){msg.style.display='none';},4000);
-  });
+  var m=g('smsg');
+  if(!cfg.webhookUrl){m.style.display='block';m.style.color='#ff4444';m.textContent='No URL in Settings.';return;}
+  m.style.display='block';m.style.color='#00d4ff';m.textContent='Syncing...';
+  fetch(cfg.webhookUrl).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}).then(function(data){
+    ['weight','bodyFat','restingHR','hrv','steps','activeCalories'].forEach(function(k){if(data[k]){var v=parseFloat(data[k]);if(v>0)stats[k]=v;}});
+    stats.updatedAt=td();sv('s',stats);
+    prog.push({date:td(),weight:stats.weight,bodyFat:stats.bodyFat});sv('p',prog);
+    cfg.lastSync=new Date().toLocaleString();sv('c',cfg);
+    m.textContent='✓ Synced!';renderDash();
+    setTimeout(function(){m.style.display='none';},3000);
+  }).catch(function(e){m.style.color='#ff4444';m.textContent='Failed: '+e.message;setTimeout(function(){m.style.display='none';},4000);});
 }
 
-// ── MODAL ─────────────────────────────────────────────────────────────────
+// ── EDIT MODAL ───────────────────────────────────────────────────────────────
 function openModal(){
-  el('m-weight').value=stats.weight;
-  el('m-bf').value=stats.bodyFat;
-  el('m-waist').value=stats.waist||'';
-  el('m-hr').value=stats.restingHR;
-  el('m-hrv').value=stats.hrv;
-  el('modal').classList.add('open');
+  g('mw').value=stats.weight;g('mbf').value=stats.bodyFat;g('mwa').value=stats.waist||'';
+  g('mhr').value=stats.restingHR;g('mhv').value=stats.hrv;
+  g('overlay').classList.add('on');
 }
-function closeModal(){el('modal').classList.remove('open');}
+function closeModal(){g('overlay').classList.remove('on');}
 function saveModal(){
-  var w=parseFloat(el('m-weight').value);
-  var bf=parseFloat(el('m-bf').value);
-  var wa=parseFloat(el('m-waist').value);
-  var hr=parseFloat(el('m-hr').value);
-  var hrv=parseFloat(el('m-hrv').value);
-  if(w>0)stats.weight=w;
-  if(bf>0)stats.bodyFat=bf;
-  stats.waist=wa>0?wa:null;
-  if(hr>0)stats.restingHR=hr;
-  if(hrv>0)stats.hrv=hrv;
-  stats.updatedAt=today();
-  save('stats',stats);
-  progress.push({date:today(),weight:stats.weight,bodyFat:stats.bodyFat,waist:stats.waist});
-  save('progress',progress);
-  closeModal();
-  renderDash();
+  var fields={weight:g('mw'),bodyFat:g('mbf'),waist:g('mwa'),restingHR:g('mhr'),hrv:g('mhv')};
+  var w=parseFloat(fields.weight.value),bf=parseFloat(fields.bodyFat.value),wa=parseFloat(fields.waist.value),hr=parseFloat(fields.restingHR.value),hv=parseFloat(fields.hrv.value);
+  if(w>0)stats.weight=w;if(bf>0)stats.bodyFat=bf;stats.waist=wa>0?wa:null;if(hr>0)stats.restingHR=hr;if(hv>0)stats.hrv=hv;
+  stats.updatedAt=td();sv('s',stats);
+  prog.push({date:td(),weight:stats.weight,bodyFat:stats.bodyFat,waist:stats.waist});sv('p',prog);
+  closeModal();renderDash();
 }
 
-// ── PLAN ──────────────────────────────────────────────────────────────────
-var activeW='A';
+// ── PLAN ─────────────────────────────────────────────────────────────────────
+var curW='A';
 function switchW(w){
-  activeW=w;
-  el('tog-A').classList.toggle('active',w==='A');
-  el('tog-B').classList.toggle('active',w==='B');
-  renderPlan();
-}
-function toggleEx(id){
-  var b=el('eb-'+id);
-  var open=b.classList.toggle('open');
-  el('ea-'+id).textContent=open?'▲':'▼';
+  curW=w;g('tog-A').classList.toggle('on',w==='A');g('tog-B').classList.toggle('on',w==='B');renderPlan();
 }
 function renderPlan(){
-  var wk=WK[activeW];
-  el('w-focus').textContent=wk.focus;
+  var wk=WK[curW];g('pfocus').textContent=wk.focus;
   var html='';
-  var sections=[['WARM-UP',wk.warmup,'wu'],['MAIN WORK',wk.exercises,'ex'],['CORE / APT',wk.core,'co']];
-  sections.forEach(function(sec){
-    var label=sec[0],list=sec[1],pfx=sec[2];
-    html+='<div class="section-title">'+label+'</div>';
-    list.forEach(function(ex,i){
-      var id=activeW+pfx+i;
-      var sl=typeof ex.sets==='number'?ex.sets+'×'+ex.reps:ex.sets||ex.reps;
-      html+='<div class="ex-card">';
-      html+='<button class="ex-btn" onclick="toggleEx(\''+id+'\')">';
-      html+='<div class="ex-num">'+(i+1)+'</div>';
-      html+='<div style="flex:1"><div style="font-size:13px;font-weight:500;color:#e8e8f0">'+ex.name+'</div>';
-      html+='<div style="font-family:\'DM Mono\',monospace;font-size:10px;color:#555;margin-top:2px">'+sl+' · '+ex.band+'</div></div>';
-      html+='<span style="color:#555;font-size:11px" id="ea-'+id+'">▼</span>';
-      html+='</button>';
-      html+='<div class="ex-body" id="eb-'+id+'">';
-      html+='<div style="font-size:12px;color:#aaa;line-height:1.6;margin-top:10px;margin-bottom:6px">'+ex.cue+'</div>';
-      if(ex.muscles)html+='<div style="font-family:\'DM Mono\',monospace;font-size:10px;color:#555">↗ '+ex.muscles+'</div>';
-      html+='</div></div>';
+  [['WARM-UP',wk.warmup,'wu'],['MAIN WORK',wk.exercises,'ex'],['CORE / APT',wk.core,'co']].forEach(function(sec){
+    html+='<div class="st">'+sec[0]+'</div>';
+    sec[1].forEach(function(ex,i){
+      var id=curW+sec[2]+i;
+      var sl=typeof ex.sets==='number'?ex.sets+'x'+ex.reps:(ex.sets||ex.reps);
+      html+='<div class="ec"><button class="eb" data-exid="'+id+'"><div class="en">'+(i+1)+'</div><div style="flex:1"><div style="font-size:13px;font-weight:500;color:#e8e8f0">'+ex.name+'</div><div style="font-family:\'DM Mono\',monospace;font-size:10px;color:#555;margin-top:2px">'+sl+' · '+ex.band+'</div></div><span style="color:#555;font-size:11px" id="ea-'+id+'">▼</span></button><div class="ed" id="ed-'+id+'"><div style="font-size:12px;color:#aaa;line-height:1.6;margin-top:10px;margin-bottom:6px">'+ex.cue+'</div>'+(ex.muscles?'<div style="font-family:\'DM Mono\',monospace;font-size:10px;color:#555">↗ '+ex.muscles+'</div>':'')+'</div></div>';
     });
   });
-  el('w-content').innerHTML=html;
+  g('pcontent').innerHTML=html;
+  g('pcontent').querySelectorAll('.eb').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var id=this.getAttribute('data-exid');
+      var body=g('ed-'+id),arr=g('ea-'+id);
+      var open=body.classList.toggle('on');
+      arr.textContent=open?'▲':'▼';
+    });
+  });
 }
 
-// ── LOG ───────────────────────────────────────────────────────────────────
+// ── LOG ──────────────────────────────────────────────────────────────────────
 function renderLog(){
-  var sched=getSched(today());
-  var lc=el('log-content');
-  if(sched!=='A'&&sched!=='B'){
-    lc.innerHTML='<div style="padding:60px 20px;text-align:center"><div style="font-size:40px;margin-bottom:12px">💤</div><div style="color:#555;font-size:14px">No strength today — '+sched+' day.</div></div>';
-    return;
-  }
-  var wk=WK[sched];
-  var td=today();
-  var tl=logs[td]||{sets:{},notes:'',done:{}};
+  var sc=sched(td()),lc=g('lcontent');
+  if(sc!=='A'&&sc!=='B'){lc.innerHTML='<div style="padding:60px 20px;text-align:center"><div style="font-size:40px;margin-bottom:12px">💤</div><div style="color:#555;font-size:14px">No strength today ('+sc+' day).</div></div>';return;}
+  var wk=WK[sc],today=td(),tl=logs[today]||{sets:{},notes:'',done:{}};
   var allEx=wk.exercises.concat(wk.core);
-  var html='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">';
-  html+='<div><div style="font-family:\'DM Mono\',monospace;font-size:9px;color:#00d4ff;letter-spacing:2px">TODAY\'S LOG</div>';
-  html+='<div style="font-size:16px;font-weight:600;margin-top:2px">Strength '+sched+'</div></div>';
-  html+='<div style="font-family:\'DM Mono\',monospace;font-size:9px;color:#555">'+td+'</div></div>';
-
+  var html='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><div><div style="font-family:\'DM Mono\',monospace;font-size:9px;color:#00d4ff;letter-spacing:2px">TODAY\'S LOG</div><div style="font-size:16px;font-weight:600;margin-top:2px">Strength '+sc+'</div></div><div style="font-family:\'DM Mono\',monospace;font-size:9px;color:#555">'+today+'</div></div>';
   allEx.forEach(function(ex){
     var ns=typeof ex.sets==='number'?ex.sets:3;
     var done=(tl.done||{})[ex.name];
     var sets=(tl.sets||{})[ex.name]||[];
-    var exId='ex_'+ex.name.replace(/[^a-z0-9]/gi,'_');
-    html+='<div class="log-ex'+(done?' done':'')+'" id="'+exId+'">';
-    html+='<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">';
-    html+='<div><div style="font-size:13px;font-weight:500">'+ex.name+'</div>';
-    html+='<div style="font-family:\'DM Mono\',monospace;font-size:10px;color:#555;margin-top:2px">'+ns+'×'+ex.reps+' · '+ex.band+'</div></div>';
-    html+='<button class="mark-btn'+(done?' done':'')+'" onclick="toggleDone(\''+ex.name.replace(/'/g,"\\'")+'\')">'+(done?'✓ Done':'Mark Done')+'</button>';
-    html+='</div>';
+    var safe=ex.name.replace(/"/g,'&quot;');
+    html+='<div class="lx'+(done?' dn':'')+'"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px"><div><div style="font-size:13px;font-weight:500">'+ex.name+'</div><div style="font-family:\'DM Mono\',monospace;font-size:10px;color:#555;margin-top:2px">'+ns+'x'+ex.reps+' · '+ex.band+'</div></div><button class="mb'+(done?' dn':'')+'" data-exname="'+safe+'">'+(done?'✓ Done':'Mark Done')+'</button></div>';
     for(var si=0;si<ns;si++){
-      var sv=sets[si]||{reps:'',note:''};
-      html+='<div class="log-row"><div class="log-snum">S'+(si+1)+'</div>';
-      html+='<input class="inp" style="flex:1;font-size:12px;padding:6px 10px" placeholder="Reps" value="'+sv.reps+'" onchange="setRep(\''+ex.name.replace(/'/g,"\\'")+'\',' +si+',this.value)"/>';
-      html+='<input class="inp" style="flex:2;font-size:12px;padding:6px 10px" placeholder="Note" value="'+sv.note+'" onchange="setNote(\''+ex.name.replace(/'/g,"\\'")+'\',' +si+',this.value)"/>';
-      html+='</div>';
+      var sv2=sets[si]||{reps:'',note:''};
+      html+='<div class="lr"><div class="ls">S'+(si+1)+'</div><input class="inp" style="flex:1;font-size:12px;padding:6px 10px" placeholder="Reps" value="'+sv2.reps+'" data-ex="'+safe+'" data-si="'+si+'" data-f="reps"><input class="inp" style="flex:2;font-size:12px;padding:6px 10px" placeholder="Note" value="'+sv2.note+'" data-ex="'+safe+'" data-si="'+si+'" data-f="note"></div>';
     }
     html+='</div>';
   });
+  html+='<div style="margin-top:8px;margin-bottom:20px"><div style="font-family:\'DM Mono\',monospace;font-size:9px;color:#555;letter-spacing:2px;margin-bottom:6px">SESSION NOTES</div><textarea class="inp" id="log-notes" style="min-height:80px;padding:12px;border-radius:10px" placeholder="How did it feel? PRs? Issues?">'+((tl.notes)||'')+'</textarea></div>';
 
-  html+='<div style="margin-top:8px;margin-bottom:20px">';
-  html+='<div style="font-family:\'DM Mono\',monospace;font-size:9px;color:#555;letter-spacing:2px;margin-bottom:6px">SESSION NOTES</div>';
-  html+='<textarea class="inp" style="min-height:80px;padding:12px;border-radius:10px" placeholder="How did it feel? PRs? Issues?" onchange="setNotes(this.value)">'+(tl.notes||'')+'</textarea>';
-
-html+=’</div>’;
 lc.innerHTML=html;
+lc.querySelectorAll(’.mb’).forEach(function(btn){
+btn.addEventListener(‘click’,function(){
+var name=this.getAttribute(‘data-exname’);
+if(!logs[today])logs[today]={sets:{},notes:’’,done:{}};
+if(!logs[today].done)logs[today].done={};
+logs[today].done[name]=!logs[today].done[name];
+sv(‘l’,logs);renderLog();
+});
+});
+lc.querySelectorAll(‘input[data-ex]’).forEach(function(inp){
+inp.addEventListener(‘change’,function(){
+var name=this.getAttribute(‘data-ex’),si=parseInt(this.getAttribute(‘data-si’)),f=this.getAttribute(‘data-f’),val=this.value;
+if(!logs[today])logs[today]={sets:{},notes:’’,done:{}};
+if(!logs[today].sets[name])logs[today].sets[name]=[];
+if(!logs[today].sets[name][si])logs[today].sets[name][si]={reps:’’,note:’’};
+logs[today].sets[name][si][f]=val;sv(‘l’,logs);
+});
+});
+var nt=g(‘log-notes’);
+if(nt)nt.addEventListener(‘change’,function(){if(!logs[today])logs[today]={sets:{},notes:’’,done:{}};logs[today].notes=this.value;sv(‘l’,logs);});
 }
 
-function toggleDone(name){
-var td=today();
-if(!logs[td])logs[td]={sets:{},notes:’’,done:{}};
-if(!logs[td].done)logs[td].done={};
-logs[td].done[name]=!logs[td].done[name];
-save(‘logs’,logs);renderLog();
-}
-function setRep(name,si,val){
-var td=today();
-if(!logs[td])logs[td]={sets:{},notes:’’,done:{}};
-if(!logs[td].sets[name])logs[td].sets[name]=[];
-if(!logs[td].sets[name][si])logs[td].sets[name][si]={reps:’’,note:’’};
-logs[td].sets[name][si].reps=val;save(‘logs’,logs);
-}
-function setNote(name,si,val){
-var td=today();
-if(!logs[td])logs[td]={sets:{},notes:’’,done:{}};
-if(!logs[td].sets[name])logs[td].sets[name]=[];
-if(!logs[td].sets[name][si])logs[td].sets[name][si]={reps:’’,note:’’};
-logs[td].sets[name][si].note=val;save(‘logs’,logs);
-}
-function setNotes(val){
-var td=today();
-if(!logs[td])logs[td]={sets:{},notes:’’,done:{}};
-logs[td].notes=val;save(‘logs’,logs);
-}
-
-// ── PROGRESS ──────────────────────────────────────────────────────────────
-function renderProgress(){
-drawChart(‘ch-weight’,‘WEIGHT (LBS)’,‘weight’,’#00d4ff’);
-drawChart(‘ch-bf’,‘BODY FAT %’,‘bodyFat’,’#ff6b33’);
-var t=el(‘targets’);
+// ── PROGRESS ─────────────────────────────────────────────────────────────────
+function renderProg(){
+drawChart(‘cw’,‘WEIGHT (LBS)’,‘weight’,’#00d4ff’);
+drawChart(‘cb2’,‘BODY FAT %’,‘bodyFat’,’#ff6b33’);
 var rows=[[‘Body Fat’,stats.bodyFat+’%’,‘15%’],[‘Weight’,stats.weight+’ lbs’,‘~135 lbs’],[‘Visceral Fat’,stats.visceralFat,’< 7’]];
-t.innerHTML=rows.map(function(r){
-return ‘<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #1a2030">’+
-‘<div style="font-size:13px">’+r[0]+’</div>’+
-‘<div style="display:flex;gap:8px;align-items:center">’+
-‘<span style="font-family:\'DM Mono\',monospace;font-size:12px">’+r[1]+’</span>’+
-‘<span style="color:#333">›</span>’+
-‘<span style="font-family:\'DM Mono\',monospace;font-size:12px;color:#00d4ff">’+r[2]+’</span></div></div>’;
-}).join(’’);
+g(‘tgts’).innerHTML=rows.map(function(r){return ‘<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #1a2030"><div style="font-size:13px">’+r[0]+’</div><div style="display:flex;gap:8px;align-items:center"><span style="font-family:\'DM Mono\',monospace;font-size:12px">’+r[1]+’</span><span style="color:#333">›</span><span style="font-family:\'DM Mono\',monospace;font-size:12px;color:#00d4ff">’+r[2]+’</span></div></div>’;}).join(’’);
 }
 function drawChart(cid,label,key,color){
-var c=el(cid);
-var data=progress.filter(function(p){return p[key]!=null&&!isNaN(parseFloat(p[key]));});
-if(data.length<2){c.innerHTML=’<div style="font-family:\'DM Mono\',monospace;font-size:9px;color:#555;letter-spacing:2px;padding:0 16px 8px">’+label+’</div><div style="text-align:center;padding:16px;color:#555;font-size:12px">Need more data points — update stats from Dashboard.</div>’;return;}
-var W=c.offsetWidth||340,H=120,pL=36,pR=12,pT=8,pB=24;
+var c=g(cid);
+var data=prog.filter(function(p){return p[key]!=null&&!isNaN(parseFloat(p[key]));});
+if(data.length<2){c.innerHTML=’<div style="font-family:\'DM Mono\',monospace;font-size:9px;color:#555;letter-spacing:2px;padding:0 16px 8px">’+label+’</div><div style="text-align:center;padding:16px;color:#555;font-size:12px">Update stats from Dashboard to start tracking.</div>’;return;}
+var W=c.offsetWidth-1,H=120,pL=36,pR=12,pT=8,pB=24;
 var vals=data.map(function(d){return parseFloat(d[key]);});
-var mn=Math.min.apply(null,vals)*0.98,mx=Math.max.apply(null,vals)*1.02;
-if(mn===mx){mn-=1;mx+=1;}
+var mn=Math.min.apply(null,vals),mx=Math.max.apply(null,vals);
+if(mn===mx){mn-=1;mx+=1;}mn*=0.99;mx*=1.01;
 function xS(i){return pL+(W-pL-pR)*i/(data.length-1);}
 function yS(v){return pT+(H-pT-pB)*(1-(v-mn)/(mx-mn));}
 var pts=data.map(function(d,i){return xS(i).toFixed(1)+’,’+yS(parseFloat(d[key])).toFixed(1);}).join(’ ‘);
-var area=’’+xS(0).toFixed(1)+’,’+(H-pB)+’ ‘+pts+’ ‘+xS(data.length-1).toFixed(1)+’,’+(H-pB);
-var yts=[mn,(mn+mx)/2,mx].map(function(v){
-return ‘<line x1="'+pL+'" y1="'+yS(v).toFixed(1)+'" x2="'+(W-pR)+'" y2="'+yS(v).toFixed(1)+'" stroke="#1a2030" stroke-width="1"/>’+
-‘<text x="'+(pL-4)+'" y="'+(yS(v)+4).toFixed(1)+'" text-anchor="end" fill="#555" font-size="9" font-family="DM Mono">’+v.toFixed(1)+’</text>’;
-}).join(’’);
+var area=xS(0).toFixed(1)+’,’+(H-pB)+’ ‘+pts+’ ‘+xS(data.length-1).toFixed(1)+’,’+(H-pB);
+var yts=[mn,(mn+mx)/2,mx].map(function(v){return ‘<line x1="'+pL+'" y1="'+yS(v).toFixed(1)+'" x2="'+(W-pR)+'" y2="'+yS(v).toFixed(1)+'" stroke="#1a2030" stroke-width="1"/><text x="'+(pL-4)+'" y="'+(yS(v)+4).toFixed(1)+'" text-anchor="end" fill="#555" font-size="9" font-family="DM Mono">’+v.toFixed(1)+’</text>’;}).join(’’);
 var dots=data.map(function(d,i){return ‘<circle cx="'+xS(i).toFixed(1)+'" cy="'+yS(parseFloat(d[key])).toFixed(1)+'" r="3" fill="'+color+'"/>’;}).join(’’);
-var xls=[0,Math.floor(data.length/2),data.length-1].filter(function(v,i,a){return a.indexOf(v)===i;}).map(function(i){
-return ‘<text x="'+xS(i).toFixed(1)+'" y="'+(H-pB+14)+'" text-anchor="middle" fill="#555" font-size="9" font-family="DM Mono">’+data[i].date.slice(5)+’</text>’;
-}).join(’’);
-var gid=‘g’+key;
-c.innerHTML=’<div style="font-family:\'DM Mono\',monospace;font-size:9px;color:#555;letter-spacing:2px;padding:0 16px 8px">’+label+’</div>’+
-‘<svg width="'+W+'" height="'+H+'" style="display:block">’+
-‘<defs><linearGradient id="'+gid+'" x1="0" y1="0" x2="0" y2="1">’+
-‘<stop offset="5%" stop-color="'+color+'" stop-opacity="0.3"/>’+
-‘<stop offset="95%" stop-color="'+color+'" stop-opacity="0"/></linearGradient></defs>’+
-yts+’<polygon points="'+area+'" fill="url(#'+gid+')"/>’+
-‘<polyline points="'+pts+'" fill="none" stroke="'+color+'" stroke-width="2"/>’+
-dots+xls+’</svg>’;
+var idxs=[0];if(data.length>2)idxs.push(Math.floor(data.length/2));idxs.push(data.length-1);
+var xls=idxs.map(function(i){return ‘<text x="'+xS(i).toFixed(1)+'" y="'+(H-pB+14)+'" text-anchor="middle" fill="#555" font-size="9" font-family="DM Mono">’+data[i].date.slice(5)+’</text>’;}).join(’’);
+var gid=‘g’+cid;
+c.innerHTML=’<div style="font-family:\'DM Mono\',monospace;font-size:9px;color:#555;letter-spacing:2px;padding:0 16px 8px">’+label+’</div><svg width="'+W+'" height="'+H+'" style="display:block;overflow:visible"><defs><linearGradient id="'+gid+'" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stop-color="'+color+'" stop-opacity="0.3"/><stop offset="95%" stop-color="'+color+'" stop-opacity="0"/></linearGradient></defs>’+yts+’<polygon points="'+area+'" fill="url(#'+gid+')"/><polyline points="'+pts+'" fill="none" stroke="'+color+'" stroke-width="2"/>’+dots+xls+’</svg>’;
 }
 
-// ── SETTINGS ──────────────────────────────────────────────────────────────
-function toggleC(id){
-var hdr=el(‘ch-’+id),body=el(‘cb-’+id),arr=el(‘ca-’+id);
-var open=body.classList.toggle(‘open’);
-hdr.classList.toggle(‘open’,open);
-arr.textContent=open?‘▲’:‘▼’;
+// ── SETTINGS ─────────────────────────────────────────────────────────────────
+function toggleColl(id){
+var h=g(‘ch-’+id),b=g(‘cb-’+id),a=g(‘ca-’+id);
+var open=b.classList.toggle(‘on’);h.classList.toggle(‘on’,open);a.textContent=open?‘▲’:‘▼’;
 }
-function saveUrl(){
-cfg.webhookUrl=el(‘url-inp’).value;
-save(‘cfg’,cfg);
-var btn=event.target;
-btn.textContent=‘✓ SAVED’;btn.style.background=’#1a3020’;btn.style.color=’#3a8050’;
+
+// ── WIRE UP ALL EVENTS ────────────────────────────────────────────────────────
+document.addEventListener(‘DOMContentLoaded’,function(){
+// Nav
+g(‘nb-dash’).addEventListener(‘click’,function(){goTab(‘dash’);});
+g(‘nb-plan’).addEventListener(‘click’,function(){goTab(‘plan’);});
+g(‘nb-log’).addEventListener(‘click’,function(){goTab(‘log’);});
+g(‘nb-prog’).addEventListener(‘click’,function(){goTab(‘prog’);});
+g(‘nb-set’).addEventListener(‘click’,function(){goTab(‘set’);});
+// Dashboard
+g(‘btn-sync’).addEventListener(‘click’,doSync);
+g(‘btn-edit’).addEventListener(‘click’,openModal);
+// Modal
+g(‘btn-cancel’).addEventListener(‘click’,closeModal);
+g(‘btn-saveedit’).addEventListener(‘click’,saveModal);
+g(‘overlay’).addEventListener(‘click’,function(e){if(e.target===this)closeModal();});
+// Plan toggle
+g(‘tog-A’).addEventListener(‘click’,function(){switchW(‘A’);});
+g(‘tog-B’).addEventListener(‘click’,function(){switchW(‘B’);});
+// Settings collapsibles
+g(‘ch-url’).addEventListener(‘click’,function(){toggleColl(‘url’);});
+g(‘ch-pd’).addEventListener(‘click’,function(){toggleColl(‘pd’);});
+g(‘ch-sc’).addEventListener(‘click’,function(){toggleColl(‘sc’);});
+g(‘ch-au’).addEventListener(‘click’,function(){toggleColl(‘au’);});
+// Settings save URL
+g(‘btn-saveurl’).addEventListener(‘click’,function(){
+cfg.webhookUrl=g(‘urlinp’).value;sv(‘c’,cfg);
+var btn=this;btn.textContent=‘✓ SAVED’;btn.style.background=’#1a3020’;btn.style.color=’#3a8050’;
 setTimeout(function(){btn.textContent=‘SAVE URL’;btn.style.background=’#00d4ff’;btn.style.color=’#000’;},2000);
-}
-function resetData(){
+});
+// Reset
+g(‘btn-reset’).addEventListener(‘click’,function(){
 if(!confirm(‘Reset all app data to defaults?’))return;
-[‘stats’,‘logs’,‘progress’,‘cfg’].forEach(function(k){localStorage.removeItem(‘fg_’+k);});
+[‘s’,‘l’,‘p’,‘c’].forEach(function(k){localStorage.removeItem(PFX+k);});
+[‘fg_stats’,‘fg_logs’,‘fg_progress’,‘fg_cfg’,‘fg_settings’,‘forge_stats’,‘forge_logs’,‘forge_progress’,‘forge_settings’].forEach(function(k){localStorage.removeItem(k);});
 location.href=location.pathname;
-}
-
-// ── INIT ──────────────────────────────────────────────────────────────────
-initHeader();
+});
+// Init
+initHdr();
 renderDash();
-var initSched=getSched(today());
-activeW=(initSched===‘A’||initSched===‘B’)?initSched:‘A’;
+var sc=sched(td());curW=(sc===‘A’||sc===‘B’)?sc:‘A’;
 renderPlan();
+});
+
+})();
 </script>
 
 </body>
