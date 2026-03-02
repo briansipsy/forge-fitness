@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
@@ -8,563 +9,630 @@
 <meta name="apple-mobile-web-app-title" content="FORGE"/>
 <meta name="theme-color" content="#0a0a0f"/>
 <title>FORGE Fitness</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{background:#0a0a0f;color:#e8e8f0;font-family:'DM Sans',sans-serif;overscroll-behavior:none}
+body{background:#0a0a0f;color:#e8e8f0;font-family:'DM Sans',sans-serif;overscroll-behavior:none;min-height:100dvh}
 input,textarea,button{font-family:'DM Sans',sans-serif;outline:none}
 ::-webkit-scrollbar{display:none}
 textarea{resize:none}
+button{cursor:pointer}
+.page{display:none;padding:20px 16px 0}
+.page.active{display:block}
+.mono{font-family:'DM Mono',monospace}
+.label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;color:#555;margin-bottom:6px}
+.card{background:#111118;border:1px solid #1a2030;border-radius:12px;padding:16px;margin-bottom:12px}
+.input{width:100%;background:#0d1117;border:1px solid #1a2030;border-radius:8px;padding:9px 12px;color:#e8e8f0;font-size:14px}
+.btn-primary{background:#00d4ff;border:none;border-radius:8px;color:#000;font-weight:700;padding:11px;font-size:13px;font-family:'DM Mono',monospace;width:100%}
+.btn-ghost{background:none;border:1px solid #1a2030;border-radius:6px;padding:4px 10px;color:#888;font-size:11px}
+.btn-accent{background:none;border:1px solid #1a2030;border-radius:6px;padding:4px 10px;color:#00d4ff;font-size:11px}
+.section-title{font-family:'DM Mono',monospace;font-size:10px;color:#00d4ff;letter-spacing:2px;margin:16px 0 10px}
+.section-title:first-child{margin-top:0}
+.ex-card{background:#111118;border:1px solid #1a2030;border-radius:10px;margin-bottom:8px;overflow:hidden}
+.ex-header{width:100%;background:none;border:none;padding:12px 14px;display:flex;align-items:center;gap:10px;text-align:left;cursor:pointer}
+.ex-num{width:26px;height:26px;border-radius:50%;background:#1a2030;border:2px solid #2a3040;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'DM Mono',monospace;font-size:9px;color:#555}
+.ex-body{padding:0 14px 14px;border-top:1px solid #1a2030;display:none}
+.ex-body.open{display:block}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
+.stat-box{background:#111118;border:1px solid #1a2030;border-radius:10px;padding:12px 10px}
+.stat-box.accent{border-color:#00d4ff22}
+.stat-label{font-family:'DM Mono',monospace;font-size:8px;color:#444;letter-spacing:1.5px;margin-bottom:4px}
+.stat-label.accent{color:#00d4ff}
+.stat-val{font-size:17px;font-weight:700;line-height:1}
+.stat-val.accent{color:#00d4ff}
+.progress-bar{background:#1a2030;border-radius:4px;height:8px;overflow:hidden;margin-bottom:6px}
+.progress-fill{height:100%;background:linear-gradient(90deg,#00d4ff,#0090ff);border-radius:4px;transition:width 0.5s}
+.modal-bg{position:fixed;inset:0;background:#000b;display:none;align-items:center;justify-content:center;z-index:200;padding:20px}
+.modal-bg.open{display:flex}
+.modal{background:#111118;border:1px solid #1a2030;border-radius:16px;padding:24px;width:100%;max-width:360px}
+.collapsible{overflow:hidden}
+.collapsible-header{width:100%;background:none;border:none;padding:14px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-family:'DM Mono',monospace;font-size:9px;color:#555;letter-spacing:2px}
+.collapsible-header.open{color:#00d4ff}
+.collapsible-body{padding:0 16px 16px;border-top:1px solid #1a2030;display:none}
+.collapsible-body.open{display:block}
+.step{display:flex;gap:10px;margin-bottom:10px;align-items:flex-start}
+.step-num{min-width:20px;height:20px;border-radius:50%;background:#0d2030;border:1px solid #00d4ff33;display:flex;align-items:center;justify-content:center;font-size:8px;color:#00d4ff;font-family:'DM Mono',monospace;flex-shrink:0;margin-top:1px}
+.step-text{font-size:11px;color:#aaa;line-height:1.6}
+.step-sub{font-size:10px;color:#555;margin-top:2px;line-height:1.5}
+.tab-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#0d1117;border-top:1px solid #1a2030;display:flex;padding-bottom:env(safe-area-inset-bottom,0px);z-index:100}
+.tab-btn{flex:1;padding:10px 0 8px;background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:2px}
+.tab-icon{font-size:18px;opacity:0.3;transition:opacity 0.15s}
+.tab-icon.active{opacity:1}
+.tab-label{font-size:9px;font-family:'DM Mono',monospace;letter-spacing:1px;color:#3a4050;transition:color 0.15s}
+.tab-label.active{color:#00d4ff}
+.header{background:linear-gradient(135deg,#0d1117,#111827);border-bottom:1px solid #1a2030;padding:env(safe-area-inset-top,16px) 20px 14px;position:sticky;top:0;z-index:50}
+.today-card{border-radius:12px;padding:16px;margin-bottom:16px}
+.toggle-bar{display:flex;background:#111118;border-radius:10px;padding:3px;margin-bottom:16px;border:1px solid #1a2030}
+.toggle-btn{flex:1;padding:8px;background:none;border:none;border-radius:8px;font-family:'DM Mono',monospace;font-size:12px;color:#555;letter-spacing:1px;transition:all 0.15s}
+.toggle-btn.active{background:#00d4ff;color:#000;font-weight:700}
+#main{max-width:480px;margin:0 auto;padding-bottom:80px}
+.warn-box{background:#1a0f0a;border:1px solid #ff6b3320;border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:12px;color:#cc8866;line-height:1.5}
+.green-box{background:#0d1a0d;border:1px solid #1a3020;border-radius:10px;padding:12px 16px}
+.apt-item{display:flex;gap:10px;align-items:center;margin-bottom:8px}
+.apt-dot{width:18px;height:18px;border-radius:50%;border:1px solid #2a4030;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:8px;color:#3a8050;font-family:'DM Mono',monospace}
+.log-row{display:flex;gap:8px;margin-bottom:6px;align-items:center}
+.log-snum{font-family:'DM Mono',monospace;font-size:9px;color:#555;width:16px}
+.done-btn{padding:4px 10px;background:#1a2030;border:1px solid #2a3040;border-radius:6px;color:#555;font-size:11px}
+.done-btn.done{background:#1a3020;border-color:#3a8050;color:#3a8050}
+svg.chart-area{width:100%;overflow:visible}
 </style>
 </head>
 <body>
-<div id="root"></div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/recharts@2.8.0/umd/Recharts.js"></script>
+<div id="main">
+  <!-- HEADER -->
+  <div class="header">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div>
+        <div class="mono" style="font-size:10px;color:#00d4ff;letter-spacing:3px;margin-bottom:2px">FORGE</div>
+        <div style="font-size:20px;font-weight:700;letter-spacing:-0.5px">Fitness Tracker</div>
+      </div>
+      <div style="text-align:right">
+        <div class="mono" style="font-size:9px;color:#555" id="hdr-date"></div>
+        <div class="mono" id="hdr-sched" style="margin-top:4px;padding:3px 8px;border-radius:4px;font-size:10px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+
+  <div class="page active" id="page-dashboard">
+    <div class="today-card" id="today-card">
+      <div class="label">TODAY'S SESSION</div>
+      <div id="today-title" style="font-size:16px;font-weight:600;margin-bottom:4px"></div>
+      <div id="today-sub" style="color:#888;font-size:13px"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div class="label" style="margin:0">BODY STATS</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn-accent" onclick="doSync()">⟳ Sync</button>
+        <button class="btn-ghost" onclick="openEdit()">Edit</button>
+      </div>
+    </div>
+    <div id="sync-msg" style="font-size:11px;font-family:'DM Mono',monospace;margin-bottom:8px;display:none"></div>
+    <div class="stat-grid">
+      <div class="stat-box"><div class="stat-label">WEIGHT</div><div class="stat-val" id="s-weight">—</div></div>
+      <div class="stat-box accent"><div class="stat-label accent">BODY FAT</div><div class="stat-val accent" id="s-bf">—</div></div>
+      <div class="stat-box"><div class="stat-label">LEAN MASS</div><div class="stat-val" id="s-lean">—</div></div>
+      <div class="stat-box"><div class="stat-label">RESTING HR</div><div class="stat-val" id="s-hr">—</div></div>
+      <div class="stat-box"><div class="stat-label">HRV</div><div class="stat-val" id="s-hrv">—</div></div>
+      <div class="stat-box"><div class="stat-label">WAIST</div><div class="stat-val" id="s-waist">—</div></div>
+    </div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+        <div class="label" style="margin:0">BODY FAT GOAL</div>
+        <div class="mono" style="font-size:9px;color:#00d4ff" id="bf-label"></div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="bf-bar" style="width:0%"></div></div>
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:#444">
+        <span>15% goal</span><span id="bf-sub"></span>
+      </div>
+    </div>
+    <div class="warn-box" id="visceral-warn" style="display:none"></div>
+    <div class="green-box">
+      <div class="label" style="color:#3a8050;margin-bottom:10px">DAILY APT ROUTINE (5-10 MIN)</div>
+      <div class="apt-item"><div class="apt-dot">1</div><div><div style="font-size:12px;font-weight:500">Hip Flexor Foam Roll</div><div style="font-size:10px;color:#555">90 sec each side</div></div></div>
+      <div class="apt-item"><div class="apt-dot">2</div><div><div style="font-size:12px;font-weight:500">Kneeling Hip Flexor Stretch</div><div style="font-size:10px;color:#555">45 sec each side</div></div></div>
+      <div class="apt-item"><div class="apt-dot">3</div><div><div style="font-size:12px;font-weight:500">Glute Bridge</div><div style="font-size:10px;color:#555">2x20</div></div></div>
+      <div class="apt-item" style="margin-bottom:0"><div class="apt-dot">4</div><div><div style="font-size:12px;font-weight:500">Dead Bug</div><div style="font-size:10px;color:#555">1x8 each side</div></div></div>
+    </div>
+  </div>
+
+  <!-- PLAN -->
+
+  <div class="page" id="page-workout">
+    <div class="toggle-bar">
+      <button class="toggle-btn active" id="btn-stra" onclick="switchWorkout('A')">STR A — UPPER</button>
+      <button class="toggle-btn" id="btn-strb" onclick="switchWorkout('B')">STR B — LOWER</button>
+    </div>
+    <div id="workout-focus" style="font-size:12px;color:#888;margin-bottom:16px"></div>
+    <div id="workout-content"></div>
+  </div>
+
+  <!-- LOG -->
+
+  <div class="page" id="page-log">
+    <div id="log-content"></div>
+  </div>
+
+  <!-- PROGRESS -->
+
+  <div class="page" id="page-progress">
+    <div class="section-title" style="margin-top:0">PROGRESS</div>
+    <div id="chart-weight" class="card" style="padding:16px 8px 16px 0"></div>
+    <div id="chart-bf" class="card" style="padding:16px 8px 16px 0"></div>
+    <div class="card">
+      <div class="label">TARGETS</div>
+      <div id="targets-list"></div>
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
+
+  <div class="page" id="page-settings">
+    <div class="section-title" style="margin-top:0">SETTINGS</div>
+    <div class="card" id="sec-connect">
+      <button class="collapsible-header open" onclick="toggleSec('connect')" style="width:100%;text-align:left;padding:0;margin-bottom:0">PIPEDREAM URL <span id="arr-connect">▲</span></button>
+      <div class="collapsible-body open" id="body-connect" style="padding:12px 0 0;border:none">
+        <div style="font-size:11px;color:#666;margin-bottom:10px">Paste your Pipedream webhook URL. Used by the Sync button.</div>
+        <input class="input" id="webhook-input" placeholder="https://your-endpoint.m.pipedream.net/..."/>
+        <div style="margin-top:10px"><button class="btn-primary" id="save-url-btn" onclick="saveUrl()">SAVE URL</button></div>
+        <div class="mono" style="font-size:10px;color:#444;margin-top:8px;text-align:center" id="last-sync-label"></div>
+      </div>
+    </div>
+    <div class="card" id="sec-pipedream">
+      <button class="collapsible-header" onclick="toggleSec('pipedream')" style="width:100%;text-align:left;padding:0">STEP 1 — PIPEDREAM SETUP <span id="arr-pipedream">▼</span></button>
+      <div class="collapsible-body" id="body-pipedream" style="padding:12px 0 0;border:none">
+        <div style="font-size:11px;color:#666;margin-bottom:12px">Free at <b style="color:#00d4ff">pipedream.com</b>. When asked, choose <b style="color:#fff">"Building automations"</b>.</div>
+        <div class="step"><div class="step-num">1</div><div><div class="step-text">pipedream.com → sign up → New Project → New → Workflow</div></div></div>
+        <div class="step"><div class="step-num">2</div><div><div class="step-text">Trigger: "HTTP / Webhook" → Generate URL → copy it</div><div class="step-sub">You'll paste this in the Shortcut.</div></div></div>
+        <div class="step"><div class="step-num">3</div><div><div class="step-text">+ step → "Data Stores" → Set Record</div><div class="step-sub">Store: "health_data" · Key: "latest" · Value: {{steps.trigger.event.body}}</div></div></div>
+        <div class="step"><div class="step-num">4</div><div><div class="step-text">+ step → HTTP Response → Body: {{steps.data_store.$return_value}}</div><div class="step-sub">Lets the Sync button read data back out.</div></div></div>
+        <div class="step"><div class="step-num">5</div><div><div class="step-text">Click Deploy (top right). Done.</div></div></div>
+      </div>
+    </div>
+    <div class="card" id="sec-shortcut">
+      <button class="collapsible-header" onclick="toggleSec('shortcut')" style="width:100%;text-align:left;padding:0">STEP 2 — BUILD THE SHORTCUT <span id="arr-shortcut">▼</span></button>
+      <div class="collapsible-body" id="body-shortcut" style="padding:12px 0 0;border:none">
+        <div style="font-size:11px;color:#666;margin-bottom:12px">Shortcuts app → <b style="color:#fff">+</b> → name it <b style="color:#fff">"Sync Health to FORGE"</b></div>
+        <div class="step"><div class="step-num">1</div><div><div class="step-text">Get Contents of Health → Weight → Most Recent → Last Day</div><div class="step-sub">Rename variable "weight"</div></div></div>
+        <div class="step"><div class="step-num">2</div><div><div class="step-text">Body Fat % → Average → Last Day</div><div class="step-sub">Rename "bodyFat"</div></div></div>
+        <div class="step"><div class="step-num">3</div><div><div class="step-text">Resting Heart Rate → Average → Last Day</div><div class="step-sub">Rename "restingHR"</div></div></div>
+        <div class="step"><div class="step-num">4</div><div><div class="step-text">Heart Rate Variability → Average → Last Day</div><div class="step-sub">Rename "hrv"</div></div></div>
+        <div class="step"><div class="step-num">5</div><div><div class="step-text">Step Count → Sum → Last Day</div><div class="step-sub">Rename "steps"</div></div></div>
+        <div class="step"><div class="step-num">6</div><div><div class="step-text">Active Energy Burned → Sum → Last Day</div><div class="step-sub">Rename "activeCalories"</div></div></div>
+        <div class="step"><div class="step-num">7</div><div><div class="step-text">Dictionary — add all 6 variables + syncedAt → Current Date</div></div></div>
+        <div class="step"><div class="step-num">8</div><div><div class="step-text">Get Contents of URL</div><div class="step-sub">URL: Pipedream URL · Method: POST · Content-Type: application/json · Body: JSON → your Dictionary</div></div></div>
+        <div class="step"><div class="step-num">9</div><div><div class="step-text">Optional notification: "Health synced to FORGE ✓"</div></div></div>
+        <div class="step"><div class="step-num">10</div><div><div class="step-text">Tap Done. Run once manually to test.</div></div></div>
+      </div>
+    </div>
+    <div class="card" id="sec-automations">
+      <button class="collapsible-header" onclick="toggleSec('automations')" style="width:100%;text-align:left;padding:0">STEP 3 — 3 AUTOMATIONS <span id="arr-automations">▼</span></button>
+      <div class="collapsible-body" id="body-automations" style="padding:12px 0 0;border:none">
+        <div style="font-size:11px;color:#666;margin-bottom:12px">Shortcuts → Automation tab → + for each. Set <b style="color:#fff">Run Immediately = ON</b>.</div>
+        <div style="background:#0d1117;border:1px solid #1a2030;border-radius:8px;padding:12px;margin-bottom:10px">
+          <div class="mono" style="font-size:9px;color:#00d4ff;letter-spacing:1.5px;margin-bottom:8px">MORNING</div>
+          <div style="font-size:11px;color:#aaa;line-height:1.8;padding-left:8px;border-left:2px solid #00d4ff22">Trigger: Time of Day → 8:00 AM Daily<br>Action: Run Shortcut → Sync Health to FORGE<br>Run Immediately: ON</div>
+        </div>
+        <div style="background:#0d1117;border:1px solid #1a2030;border-radius:8px;padding:12px;margin-bottom:10px">
+          <div class="mono" style="font-size:9px;color:#00d4ff;letter-spacing:1.5px;margin-bottom:8px">AFTER WEIGHING</div>
+          <div style="font-size:11px;color:#aaa;line-height:1.8;padding-left:8px;border-left:2px solid #00d4ff22">Trigger: App → Is Closed → iHome app<br>Action: Run Shortcut → Sync Health to FORGE<br>Run Immediately: ON</div>
+          <div style="font-size:10px;color:#555;margin-top:6px">(If iHome not listed, use Time of Day)</div>
+        </div>
+        <div style="background:#0d1117;border:1px solid #1a2030;border-radius:8px;padding:12px">
+          <div class="mono" style="font-size:9px;color:#00d4ff;letter-spacing:1.5px;margin-bottom:8px">AFTER WORKOUT</div>
+          <div style="font-size:11px;color:#aaa;line-height:1.8;padding-left:8px;border-left:2px solid #00d4ff22">Trigger: Workout → Ends → Any<br>Action: Run Shortcut → Sync Health to FORGE<br>Run Immediately: ON</div>
+        </div>
+      </div>
+    </div>
+    <div class="card" id="sec-homescreen">
+      <button class="collapsible-header" onclick="toggleSec('homescreen')" style="width:100%;text-align:left;padding:0">ADD TO HOME SCREEN <span id="arr-homescreen">▼</span></button>
+      <div class="collapsible-body" id="body-homescreen" style="padding:12px 0 0;border:none">
+        <div class="step"><div class="step-num">1</div><div><div class="step-text">Open this page in Safari (not Chrome)</div></div></div>
+        <div class="step"><div class="step-num">2</div><div><div class="step-text">Tap the Share button (box with arrow up)</div></div></div>
+        <div class="step"><div class="step-num">3</div><div><div class="step-text">"Add to Home Screen" → "Add"</div></div></div>
+        <div style="background:#0d1a0d;border:1px solid #1a3020;border-radius:8px;padding:10px;font-size:11px;color:#3a8050;line-height:1.6;margin-top:4px">Opens full-screen like a native app. All data saves locally on your device.</div>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:20px">
+      <div class="label">DATA & CLAUDE UPDATES</div>
+      <div style="font-size:11px;color:#555;line-height:1.7">All logs and stats save locally in your browser. Claude can update your workout plan or stats from conversations — just ask.</div>
+      <div class="mono" id="last-update-label" style="font-size:9px;color:#333;margin-top:8px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+
+<div class="modal-bg" id="edit-modal">
+  <div class="modal">
+    <div class="mono" style="font-size:11px;color:#00d4ff;letter-spacing:2px;margin-bottom:16px">UPDATE STATS</div>
+    <div style="margin-bottom:12px"><div style="font-size:11px;color:#888;margin-bottom:4px">Weight (lbs)</div><input class="input" id="e-weight"/></div>
+    <div style="margin-bottom:12px"><div style="font-size:11px;color:#888;margin-bottom:4px">Body Fat %</div><input class="input" id="e-bf"/></div>
+    <div style="margin-bottom:12px"><div style="font-size:11px;color:#888;margin-bottom:4px">Waist (inches)</div><input class="input" id="e-waist"/></div>
+    <div style="margin-bottom:12px"><div style="font-size:11px;color:#888;margin-bottom:4px">Resting HR (bpm)</div><input class="input" id="e-hr"/></div>
+    <div style="margin-bottom:16px"><div style="font-size:11px;color:#888;margin-bottom:4px">HRV (ms)</div><input class="input" id="e-hrv"/></div>
+    <div style="display:flex;gap:10px">
+      <button onclick="closeEdit()" style="flex:1;padding:10px;background:#1a2030;border:none;border-radius:8px;color:#888">Cancel</button>
+      <button onclick="saveEdit()" style="flex:1;padding:10px;background:#00d4ff;border:none;border-radius:8px;color:#000;font-weight:700">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- TAB BAR -->
+
+<div class="tab-bar">
+  <button class="tab-btn" onclick="setTab('dashboard')"><div class="tab-icon active" id="ti-dashboard">⚡</div><div class="tab-label active" id="tl-dashboard">HOME</div></button>
+  <button class="tab-btn" onclick="setTab('workout')"><div class="tab-icon" id="ti-workout">📋</div><div class="tab-label" id="tl-workout">PLAN</div></button>
+  <button class="tab-btn" onclick="setTab('log')"><div class="tab-icon" id="ti-log">✏️</div><div class="tab-label" id="tl-log">LOG</div></button>
+  <button class="tab-btn" onclick="setTab('progress')"><div class="tab-icon" id="ti-progress">📈</div><div class="tab-label" id="tl-progress">PROGRESS</div></button>
+  <button class="tab-btn" onclick="setTab('settings')"><div class="tab-icon" id="ti-settings">⚙️</div><div class="tab-label" id="tl-settings">SETTINGS</div></button>
+</div>
+
 <script>
-window.storage={
-  get:async(k)=>{const v=localStorage.getItem('forge_'+k);if(v===null)throw new Error('not found');return{key:k,value:v}},
-  set:async(k,v)=>{localStorage.setItem('forge_'+k,v);return{key:k,value:v}},
-  delete:async(k)=>{localStorage.removeItem('forge_'+k);return{key:k,deleted:true}}
+// ── DATA ───────────────────────────────────────────────────────────────────
+const WORKOUTS = {
+  A: {
+    focus: "Upper Body / Core / Taper",
+    warmup: [
+      {name:"Band Pull-Apart",sets:"2x20",band:"Yellow",cue:"Hold band at shoulder width, pull apart horizontally. Resets posture."},
+      {name:"Thoracic Foam Roll",sets:"2 min",band:"No band",cue:"Lie with roller at mid-back. Extend over it, pause at tight spots."},
+    ],
+    exercises: [
+      {name:"Self-Anchored Band Press",sets:3,reps:12,band:"Green→Red",cue:"Loop band behind shoulder blades. Press handles forward and slightly together. Slight forward lean.",muscles:"Chest, anterior deltoid, triceps"},
+      {name:"Banded Bent-Over Row",sets:3,reps:12,band:"Red or Grey",cue:"Stand on band. Hinge 45°, flat back. Pull to lower ribcage, elbows back. Hold 2 sec at top. #1 V-taper builder.",muscles:"Lats, rhomboids, rear delts"},
+      {name:"Banded Lateral Raise",sets:3,reps:15,band:"Yellow or Blue",cue:"Stand on band. Raise arms to shoulder height, slight forward angle. 2-sec descent. Don't shrug.",muscles:"Medial deltoid"},
+      {name:"Seated Band Face Pull",sets:3,reps:15,band:"Blue or Green",cue:"Sit on floor, loop band around feet. Pull toward face, elbows HIGH and flared. Finish thumbs pointing behind you.",muscles:"Rear delts, external rotators"},
+      {name:"Overhead Tricep Extension",sets:3,reps:12,band:"Blue or Green",cue:"Stand on band. Handles behind head, elbows up. Extend upward. Safe for elbow nerve — stretch tension only.",muscles:"Tricep long head"},
+      {name:"Banded Bicep Curl",sets:3,reps:12,band:"Green",cue:"Stand on band. Curl to shoulders, elbows pinned to sides. 2-sec descent.",muscles:"Biceps, brachialis"},
+    ],
+    core: [
+      {name:"Dead Bug",sets:3,reps:"8 each side",band:"No band",cue:"On back, arms up, knees 90°. Press lower back INTO floor. Lower opposite arm/leg without arching. #1 APT correction.",muscles:"Deep core, transverse abdominis"},
+      {name:"Band Woodchop",sets:2,reps:"12 each side",band:"Green",cue:"Stand on one end of band. Both hands on handle near opposite hip. Rotate/chop diagonally upward.",muscles:"Obliques, rotational core"},
+      {name:"Hollow Body Hold",sets:3,reps:"15-20 sec",band:"No band",cue:"Back flat, arms overhead, press lower back to floor, lift shoulders and feet slightly. Belly button to spine.",muscles:"Lower abs, transverse abdominis"},
+      {name:"Copenhagen Side Plank",sets:3,reps:"20-30 sec",band:"No band",cue:"Top foot on chair edge. Hold side plank.",muscles:"Adductors, obliques"},
+    ]
+  },
+  B: {
+    focus: "Lower Body / Core / Lower Abs",
+    warmup: [
+      {name:"Bodyweight Glute Bridge",sets:"2x20",band:"No band",cue:"Drive hips up, squeeze hard at top, posterior tilt. Hold 2 sec. APT warm-up."},
+      {name:"Foam Roll Hip Flexors",sets:"2 min",band:"No band",cue:"Roll front of hip and upper quad. Pause at tender spots. Tight hip flexors drive APT."},
+    ],
+    exercises: [
+      {name:"Bulgarian Split Squat",sets:3,reps:10,band:"Backpack load",cue:"Rear foot on couch. Front foot forward, knee behind toes. Drive through heel. Torso upright.",muscles:"Quads, glutes"},
+      {name:"Hip Thrust",sets:3,reps:15,band:"Loaded backpack",cue:"Shoulders on couch, backpack on hip crease. Drive up, SQUEEZE glutes, posterior tilt at top. #1 APT correction + glute builder.",muscles:"Glutes, hamstrings"},
+      {name:"Single-Leg Romanian Deadlift",sets:3,reps:10,band:"Water jug",cue:"Hinge forward, same-side leg extends back. Flat back. 3-sec descent. Feel the hamstring.",muscles:"Hamstrings, glutes, balance"},
+      {name:"Banded Lateral Walk",sets:3,reps:"15 steps each way",band:"Green or Red",cue:"Band around ankles. Stay in slight squat throughout. Controlled steps.",muscles:"Glute medius, hip abductors"},
+      {name:"Banded Clamshell",sets:3,reps:20,band:"Yellow or Blue",cue:"Lie on side, knees bent 90°. Rotate top knee up without rocking hips.",muscles:"Glute medius, hip external rotators"},
+    ],
+    core: [
+      {name:"Reverse Crunch",sets:3,reps:15,band:"No band",cue:"Curl the PELVIS upward, not just legs. Slow lower.",muscles:"Lower abs"},
+      {name:"Lying Leg Raise",sets:3,reps:12,band:"No band",cue:"Hands under glutes. Raise straight legs to 90°, lower without arching back.",muscles:"Lower abs, hip flexors"},
+      {name:"Dead Bug",sets:3,reps:"8 each side",band:"No band",cue:"Daily APT correction. Lower back stays glued to floor the entire time.",muscles:"Deep core"},
+      {name:"Flutter Kicks",sets:3,reps:"20 sec",band:"No band",cue:"Hands under glutes, legs low, small rapid kicks. Lower back pressed down.",muscles:"Lower abs"},
+    ]
+  }
 };
-</script>
-<script type="text/babel">
-const {useState,useEffect,useCallback}=React;
-const {AreaChart,Area,XAxis,YAxis,CartesianGrid,Tooltip,ResponsiveContainer}=Recharts;
-
-const STRENGTH_A={
-  id:"A",label:"Strength A",focus:"Upper Body / Core / Taper",
-  warmup:[
-    {name:"Band Pull-Apart",sets:"2x20",band:"Yellow",cue:"Hold band at shoulder width, pull apart horizontally until fully stretched. Resets posture."},
-    {name:"Thoracic Foam Roll",sets:"2 min",band:"No band",cue:"Lie with roller at mid-back. Extend over it, pause at tight spots. Works up and down thoracic spine."},
-  ],
-  exercises:[
-    {name:"Self-Anchored Band Press",sets:3,reps:12,band:"Green→Red",cue:"Loop band behind shoulder blades. Press handles forward and slightly together. Slight forward lean.",muscles:"Chest, anterior deltoid, triceps"},
-    {name:"Banded Bent-Over Row",sets:3,reps:12,band:"Red or Grey",cue:"Stand on band. Hinge 45°, flat back. Pull to lower ribcage, drive elbows back. Hold 2 sec at top. #1 V-taper builder.",muscles:"Lats, rhomboids, rear delts"},
-    {name:"Banded Lateral Raise",sets:3,reps:15,band:"Yellow or Blue",cue:"Stand on band. Raise arms to shoulder height, slight forward angle. 2-sec descent. Don't shrug.",muscles:"Medial deltoid"},
-    {name:"Seated Band Face Pull",sets:3,reps:15,band:"Blue or Green",cue:"Sit on floor, loop band around feet. Pull toward face, elbows HIGH and flared. Finish thumbs pointing behind you.",muscles:"Rear delts, external rotators"},
-    {name:"Overhead Tricep Extension",sets:3,reps:12,band:"Blue or Green",cue:"Stand on band. Handles behind head, elbows up. Extend upward. Safe for elbow nerve — stretch tension, not compression.",muscles:"Tricep long head"},
-    {name:"Banded Bicep Curl",sets:3,reps:12,band:"Green",cue:"Stand on band. Curl to shoulders, elbows pinned to sides. 2-sec descent.",muscles:"Biceps, brachialis"},
-  ],
-  core:[
-    {name:"Dead Bug",sets:3,reps:"8 each side",band:"No band",cue:"On back, arms up, knees 90°. Press lower back INTO floor. Lower opposite arm/leg without arching. #1 APT correction.",muscles:"Deep core, transverse abdominis"},
-    {name:"Band Woodchop",sets:2,reps:"12 each side",band:"Green",cue:"Stand on one end of band. Both hands on handle near opposite hip. Rotate/chop diagonally upward.",muscles:"Obliques, rotational core"},
-    {name:"Hollow Body Hold",sets:3,reps:"15-20 sec",band:"No band",cue:"Back flat, arms overhead, press lower back to floor, lift shoulders and feet slightly. Belly button to spine.",muscles:"Lower abs, transverse abdominis"},
-    {name:"Copenhagen Side Plank",sets:3,reps:"20-30 sec",band:"No band",cue:"Top foot on chair edge. Hold side plank.",muscles:"Adductors, obliques"},
-  ]
-};
-
-const STRENGTH_B={
-  id:"B",label:"Strength B",focus:"Lower Body / Core / Lower Abs",
-  warmup:[
-    {name:"Bodyweight Glute Bridge",sets:"2x20",band:"No band",cue:"Drive hips up, squeeze hard at top, posterior tilt. Hold 2 sec. APT warm-up."},
-    {name:"Foam Roll Hip Flexors",sets:"2 min",band:"No band",cue:"Roll front of hip and upper quad. Pause at tender spots 20-30 sec. Tight hip flexors are the primary APT driver."},
-  ],
-  exercises:[
-    {name:"Bulgarian Split Squat",sets:3,reps:10,band:"Backpack load",cue:"Rear foot on couch. Front foot forward, knee behind toes. Drive through heel. Torso upright.",muscles:"Quads, glutes"},
-    {name:"Hip Thrust",sets:3,reps:15,band:"Loaded backpack",cue:"Shoulders on couch, backpack on hip crease. Drive up, SQUEEZE glutes, posterior tilt at top. #1 APT correction + glute builder.",muscles:"Glutes, hamstrings"},
-    {name:"Single-Leg Romanian Deadlift",sets:3,reps:10,band:"Water jug",cue:"Hinge forward, same-side leg extends back. Flat back. 3-sec descent. Feel the hamstring.",muscles:"Hamstrings, glutes, balance"},
-    {name:"Banded Lateral Walk",sets:3,reps:"15 steps each way",band:"Green or Red",cue:"Band around ankles. Stay in slight squat throughout. Controlled steps.",muscles:"Glute medius, hip abductors"},
-    {name:"Banded Clamshell",sets:3,reps:20,band:"Yellow or Blue",cue:"Lie on side, knees bent 90°. Rotate top knee up without rocking hips.",muscles:"Glute medius, hip external rotators"},
-  ],
-  core:[
-    {name:"Reverse Crunch",sets:3,reps:15,band:"No band",cue:"Curl the PELVIS upward, not just legs. Slow lower.",muscles:"Lower abs"},
-    {name:"Lying Leg Raise",sets:3,reps:12,band:"No band",cue:"Hands under glutes. Raise straight legs to 90°, lower without arching back.",muscles:"Lower abs, hip flexors"},
-    {name:"Dead Bug",sets:3,reps:"8 each side",band:"No band",cue:"Daily APT correction. Lower back stays glued to floor the entire time.",muscles:"Deep core"},
-    {name:"Flutter Kicks",sets:3,reps:"20 sec",band:"No band",cue:"Hands under glutes, legs low, small rapid kicks. Lower back pressed down.",muscles:"Lower abs"},
-  ]
-};
-
-const APT_DAILY=[
-  {name:"Hip Flexor Foam Roll",sets:"90 sec each side",cue:"Pause at tender spots, breathe into them."},
-  {name:"Kneeling Hip Flexor Stretch",sets:"45 sec each side",cue:"Push hips forward, torso upright."},
-  {name:"Glute Bridge",sets:"2x20",cue:"Slow, squeeze hard at top, posterior tilt, hold 2 sec."},
-  {name:"Dead Bug",sets:"1x8 each side",cue:"Lower back stays glued to floor."},
-];
 
 const W1=["A","CardioA","B","CardioB","A","Leisure","Rest"];
 const W2=["B","CardioA","A","CardioB","B","Leisure","Rest"];
+
 function getSchedule(dateStr){
   const base=new Date("2026-02-16T00:00:00");
   const d=new Date(dateStr+"T00:00:00");
   const diff=Math.floor((d-base)/86400000);
-  if(diff<0)return null;
+  if(diff<0)return"Rest";
   const c=((diff%14)+14)%14;
   return c<7?W1[c]:W2[c-7];
 }
 function todayStr(){return new Date().toISOString().slice(0,10);}
 
-const C={mono:"'DM Mono',monospace",accent:"#00d4ff",bg:"#0a0a0f",card:"#111118",border:"#1a2030",dim:"#555",text:"#e8e8f0",sub:"#888"};
+// ── STORAGE ────────────────────────────────────────────────────────────────
+const store={
+  get(k){const v=localStorage.getItem('forge_'+k);return v?JSON.parse(v):null},
+  set(k,v){localStorage.setItem('forge_'+k,JSON.stringify(v))},
+};
 
-function App(){
-  const [tab,setTab]=useState("dashboard");
-  const [stats,setStats]=useState(null);
-  const [logs,setLogs]=useState({});
-  const [progress,setProgress]=useState([]);
-  const [settings,setSettings]=useState({webhookUrl:"https://eoyovtw43hp8ksp.m.pipedream.net",lastSync:null});
-  const [loading,setLoading]=useState(true);
-  const [syncing,setSyncing]=useState(false);
-  const [syncMsg,setSyncMsg]=useState("");
+const defaultStats={weight:149.6,bodyFat:23.0,fatMass:34.4,leanMass:115.1,bmi:22.9,visceralFat:9.0,waist:null,restingHR:70,hrv:24,updatedAt:"2026-03-01"};
+let stats=store.get('stats')||defaultStats;
+let logs=store.get('logs')||{};
+let progress=store.get('progress')||[{date:"2026-03-01",weight:149.6,bodyFat:23.0,waist:null}];
+let settings=store.get('settings')||{webhookUrl:"https://eoyovtw43hp8ksp.m.pipedream.net",lastSync:null};
 
-  const def={weight:149.6,bodyFat:23.0,fatMass:34.4,leanMass:115.1,bmi:22.9,visceralFat:9.0,waist:null,restingHR:70,hrv:24,updatedAt:"2026-03-01"};
+// ── TABS ───────────────────────────────────────────────────────────────────
+let curTab='dashboard';
+function setTab(t){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+t).classList.add('active');
+  ['dashboard','workout','log','progress','settings'].forEach(id=>{
+    document.getElementById('ti-'+id).classList.toggle('active',id===t);
+    document.getElementById('tl-'+id).classList.toggle('active',id===t);
+  });
+  curTab=t;
+  if(t==='log')renderLog();
+  if(t==='progress')renderProgress();
+  if(t==='settings')renderSettings();
+}
 
-  useEffect(()=>{
-    (async()=>{
-      try{const r=await window.storage.get("stats");setStats(JSON.parse(r.value));}catch{setStats(def);}
-      try{const r=await window.storage.get("logs");setLogs(JSON.parse(r.value));}catch{setLogs({});}
-      try{const r=await window.storage.get("progress");setProgress(JSON.parse(r.value));}catch{setProgress([{date:"2026-03-01",weight:149.6,bodyFat:23.0,waist:null}]);}
-      try{const r=await window.storage.get("settings");setSettings(JSON.parse(r.value));}catch{}
-      setLoading(false);
-    })();
-  },[]);
-
-  const saveStats=useCallback(async v=>{setStats(v);await window.storage.set("stats",JSON.stringify(v));},[]);
-  const saveLogs=useCallback(async v=>{setLogs(v);await window.storage.set("logs",JSON.stringify(v));},[]);
-  const saveProgress=useCallback(async v=>{setProgress(v);await window.storage.set("progress",JSON.stringify(v));},[]);
-  const saveSettings=useCallback(async v=>{setSettings(v);await window.storage.set("settings",JSON.stringify(v));},[]);
-
-  const doSync=async()=>{
-    if(!settings.webhookUrl){setSyncMsg("No URL in Settings.");return;}
-    setSyncing(true);setSyncMsg("");
-    try{
-      const res=await fetch(settings.webhookUrl);
-      if(!res.ok)throw new Error("HTTP "+res.status);
-      const data=await res.json();
-      const u={...stats,...data,updatedAt:todayStr()};
-      await saveStats(u);
-      await saveProgress([...progress,{date:todayStr(),weight:u.weight,bodyFat:u.bodyFat,waist:u.waist}]);
-      await saveSettings({...settings,lastSync:new Date().toLocaleString()});
-      setSyncMsg("✓ Synced!");
-    }catch(e){setSyncMsg("Sync failed: "+e.message);}
-    setSyncing(false);
-  };
-
-  if(loading)return(
-    <div style={{background:C.bg,minHeight:"100dvh",display:"flex",alignItems:"center",justifyContent:"center"}}>
-      <div style={{color:C.accent,fontFamily:C.mono,fontSize:13,letterSpacing:3}}>LOADING...</div>
-    </div>
-  );
-
+// ── HEADER ─────────────────────────────────────────────────────────────────
+function initHeader(){
   const sched=getSchedule(todayStr());
-  const tabs=[["dashboard","⚡","Home"],["workout","📋","Plan"],["log","✏️","Log"],["progress","📈","Progress"],["settings","⚙️","Settings"]];
-
-  return(
-    <div style={{background:C.bg,minHeight:"100dvh",maxWidth:480,margin:"0 auto",paddingBottom:80}}>
-      <div style={{background:"linear-gradient(135deg,#0d1117,#111827)",borderBottom:`1px solid ${C.border}`,padding:"env(safe-area-inset-top,16px) 20px 14px",position:"sticky",top:0,zIndex:50}}>
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
-          <div>
-            <div style={{fontFamily:C.mono,fontSize:10,color:C.accent,letterSpacing:3,marginBottom:2}}>FORGE</div>
-            <div style={{fontSize:20,fontWeight:700,letterSpacing:-0.5}}>Fitness Tracker</div>
-          </div>
-          <div style={{textAlign:"right"}}>
-            <div style={{fontFamily:C.mono,fontSize:9,color:C.dim}}>{new Date().toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"})}</div>
-            <div style={{marginTop:4,padding:"3px 8px",background:sched==="Rest"?"#1a1a2a":"#0d2030",border:`1px solid ${sched==="Rest"?"#2a2a3a":C.accent+"44"}`,borderRadius:4,fontSize:10,color:sched==="Rest"?C.dim:C.accent,fontFamily:C.mono}}>
-              {sched==="A"?"STR A":sched==="B"?"STR B":sched==="CardioA"?"CARDIO A":sched==="CardioB"?"CARDIO B":(sched||"").toUpperCase()}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {tab==="dashboard"&&<Dashboard stats={stats} progress={progress} sched={sched} onSaveStats={saveStats} onSaveProgress={saveProgress} onSync={doSync} syncing={syncing} syncMsg={syncMsg}/>}
-      {tab==="workout"&&<WorkoutPlan sched={sched}/>}
-      {tab==="log"&&<WorkoutLog logs={logs} onSaveLogs={saveLogs} sched={sched}/>}
-      {tab==="progress"&&<ProgressTab progress={progress} stats={stats}/>}
-      {tab==="settings"&&<SettingsTab settings={settings} onSave={saveSettings} stats={stats}/>}
-
-      <div style={{position:"fixed",bottom:0,left:"50%",transform:"translateX(-50%)",width:"100%",maxWidth:480,background:"#0d1117",borderTop:`1px solid ${C.border}`,display:"flex",paddingBottom:"env(safe-area-inset-bottom,0px)",zIndex:100}}>
-        {tabs.map(([id,icon,label])=>(
-          <button key={id} onClick={()=>setTab(id)} style={{flex:1,padding:"10px 0 8px",background:"none",border:"none",cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",gap:2}}>
-            <span style={{fontSize:18,opacity:tab===id?1:0.3}}>{icon}</span>
-            <span style={{fontSize:9,fontFamily:C.mono,letterSpacing:1,color:tab===id?C.accent:"#3a4050"}}>{label.toUpperCase()}</span>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
+  document.getElementById('hdr-date').textContent=new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+  const el=document.getElementById('hdr-sched');
+  const labels={A:'STR A',B:'STR B',CardioA:'CARDIO A',CardioB:'CARDIO B',Leisure:'LEISURE',Rest:'REST'};
+  el.textContent=labels[sched]||sched;
+  if(sched==='Rest'||sched==='Leisure'){el.style.background='#1a1a2a';el.style.border='1px solid #2a2a3a';el.style.color='#555';}
+  else{el.style.background='#0d2030';el.style.border='1px solid #00d4ff44';el.style.color='#00d4ff';}
 }
 
-function Dashboard({stats,progress,sched,onSaveStats,onSaveProgress,onSync,syncing,syncMsg}){
-  const [editing,setEditing]=useState(false);
-  const [form,setForm]=useState({});
-  const bfPct=stats?Math.max(0,Math.min(100,((stats.bodyFat-15)/(23-15))*100)):50;
-  const dayInfo={A:["Strength A","Upper Body / Core / Taper"],B:["Strength B","Lower Body / Core / Lower Abs"],CardioA:["Cardio A — Intervals","1 mile jog/walk, HR 140–165 bpm"],CardioB:["Cardio B — Zone 2","30 min walk, HR 100–130 bpm"],Leisure:["Leisure Day","Hike or long walk, 45–90 min"],Rest:["Rest Day","Recover well. 💤"]};
-  const [dayTitle,daySub]=dayInfo[sched]||["—",""];
-
-  const startEdit=()=>{setForm({weight:stats.weight,bodyFat:stats.bodyFat,waist:stats.waist||"",restingHR:stats.restingHR,hrv:stats.hrv});setEditing(true);};
-  const saveEdit=async()=>{
-    const u={...stats,weight:parseFloat(form.weight)||stats.weight,bodyFat:parseFloat(form.bodyFat)||stats.bodyFat,waist:parseFloat(form.waist)||null,restingHR:parseFloat(form.restingHR)||stats.restingHR,hrv:parseFloat(form.hrv)||stats.hrv,updatedAt:todayStr()};
-    await onSaveStats(u);
-    await onSaveProgress([...progress,{date:todayStr(),weight:u.weight,bodyFat:u.bodyFat,waist:u.waist}]);
-    setEditing(false);
+// ── DASHBOARD ──────────────────────────────────────────────────────────────
+function renderDashboard(){
+  const sched=getSchedule(todayStr());
+  const card=document.getElementById('today-card');
+  const dayInfo={
+    A:['Strength A','Upper Body / Core / Taper','#00d4ff'],
+    B:['Strength B','Lower Body / Core / Lower Abs','#00d4ff'],
+    CardioA:['Cardio A — Intervals','1 mile jog/walk, HR 140–165 bpm','#e8e8f0'],
+    CardioB:['Cardio B — Zone 2','30 min walk, HR 100–130 bpm','#e8e8f0'],
+    Leisure:['Leisure Day','Hike or long walk, 45–90 min','#e8e8f0'],
+    Rest:['Rest Day','Recover well. 💤','#e8e8f0'],
   };
+  const [title,sub,color]=dayInfo[sched]||['—','','#e8e8f0'];
+  document.getElementById('today-title').textContent=title;
+  document.getElementById('today-title').style.color=color;
+  document.getElementById('today-sub').textContent=sub;
+  if(sched==='Rest'){card.style.background='#111118';card.style.border='1px solid #1a1a2a';}
+  else{card.style.background='linear-gradient(135deg,#0a1628,#0d2040)';card.style.border='1px solid #00d4ff33';}
 
-  return(
-    <div style={{padding:"20px 16px 0"}}>
-      <div style={{background:sched==="Rest"?"#111118":"linear-gradient(135deg,#0a1628,#0d2040)",border:`1px solid ${sched==="Rest"?"#1a1a2a":C.accent+"33"}`,borderRadius:12,padding:16,marginBottom:16}}>
-        <div style={{fontFamily:C.mono,fontSize:10,color:C.dim,letterSpacing:2,marginBottom:8}}>TODAY'S SESSION</div>
-        <div style={{fontSize:16,fontWeight:600,color:["A","B"].includes(sched)?C.accent:C.text,marginBottom:4}}>{dayTitle}</div>
-        <div style={{color:C.sub,fontSize:13}}>{daySub}</div>
-      </div>
+  document.getElementById('s-weight').textContent=stats.weight+' lb';
+  document.getElementById('s-bf').textContent=stats.bodyFat+'%';
+  document.getElementById('s-lean').textContent=stats.leanMass+' lb';
+  document.getElementById('s-hr').textContent=stats.restingHR+' bpm';
+  document.getElementById('s-hrv').textContent=stats.hrv+' ms';
+  document.getElementById('s-waist').textContent=stats.waist?stats.waist+'"':'—';
 
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
-        <div style={{fontFamily:C.mono,fontSize:10,color:C.dim,letterSpacing:2}}>BODY STATS</div>
-        <div style={{display:"flex",gap:8}}>
-          <button onClick={onSync} disabled={syncing} style={{background:"none",border:`1px solid ${C.border}`,borderRadius:6,padding:"4px 10px",cursor:"pointer",color:C.accent,fontSize:11}}>
-            {syncing?"⟳ Syncing...":"⟳ Sync"}
-          </button>
-          <button onClick={startEdit} style={{background:"none",border:`1px solid ${C.border}`,borderRadius:6,padding:"4px 10px",cursor:"pointer",color:C.sub,fontSize:11}}>Edit</button>
-        </div>
-      </div>
-      {syncMsg&&<div style={{fontSize:11,color:syncMsg.startsWith("✓")?C.accent:"#ff6b6b",marginBottom:8,fontFamily:C.mono}}>{syncMsg}</div>}
+  const pct=Math.max(0,Math.min(100,((stats.bodyFat-15)/(23-15))*100));
+  document.getElementById('bf-bar').style.width=(100-pct)+'%';
+  document.getElementById('bf-label').textContent=stats.bodyFat+'% → 15%';
+  document.getElementById('bf-sub').textContent='~'+((stats.bodyFat-15)/100*stats.weight).toFixed(1)+' lbs fat to lose';
 
-      {stats&&(<>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:12}}>
-          {[["WEIGHT",stats.weight+" lb",false],["BODY FAT",stats.bodyFat+"%",true],["LEAN MASS",stats.leanMass+" lb",false],["RESTING HR",stats.restingHR+" bpm",false],["HRV",stats.hrv+" ms",false],["WAIST",stats.waist?stats.waist+'"':"—",false]].map(([label,val,accent])=>(
-            <div key={label} style={{background:C.card,border:`1px solid ${accent?C.accent+"22":C.border}`,borderRadius:10,padding:"12px 10px"}}>
-              <div style={{fontFamily:C.mono,fontSize:8,color:accent?C.accent:"#444",letterSpacing:1.5,marginBottom:4}}>{label}</div>
-              <div style={{fontSize:17,fontWeight:700,color:accent?C.accent:C.text,lineHeight:1}}>{val}</div>
-            </div>
-          ))}
-        </div>
-
-        <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:10,padding:"14px 16px",marginBottom:12}}>
-          <div style={{display:"flex",justifyContent:"space-between",marginBottom:8}}>
-            <div style={{fontFamily:C.mono,fontSize:9,color:C.dim,letterSpacing:1.5}}>BODY FAT GOAL</div>
-            <div style={{fontFamily:C.mono,fontSize:9,color:C.accent}}>{stats.bodyFat}% → 15%</div>
-          </div>
-          <div style={{background:"#1a2030",borderRadius:4,height:8,overflow:"hidden"}}>
-            <div style={{height:"100%",width:`${100-bfPct}%`,background:"linear-gradient(90deg,#00d4ff,#0090ff)",borderRadius:4}}/>
-          </div>
-          <div style={{display:"flex",justifyContent:"space-between",marginTop:6,fontSize:10,color:"#444"}}>
-            <span>15% goal</span>
-            <span>~{((stats.bodyFat-15)/100*stats.weight).toFixed(1)} lbs fat to lose</span>
-          </div>
-        </div>
-
-        {stats.visceralFat>=8&&(
-          <div style={{background:"#1a0f0a",border:"1px solid #ff6b3320",borderRadius:10,padding:"10px 14px",marginBottom:12}}>
-            <div style={{fontSize:12,color:"#cc8866",lineHeight:1.5}}>⚠️ Visceral Fat <b style={{color:"#ff6b33"}}>{stats.visceralFat}</b> — borderline. Zone 2 cardio + low-carb are your fastest levers.</div>
-          </div>
-        )}
-      </>)}
-
-      <div style={{background:"#0d1a0d",border:"1px solid #1a3020",borderRadius:10,padding:"12px 16px",marginBottom:20}}>
-        <div style={{fontFamily:C.mono,fontSize:9,color:"#3a8050",letterSpacing:1.5,marginBottom:10}}>DAILY APT ROUTINE (5-10 MIN)</div>
-        {APT_DAILY.map((ex,i)=>(
-          <div key={i} style={{display:"flex",gap:10,alignItems:"center",marginBottom:8}}>
-            <div style={{width:18,height:18,borderRadius:"50%",border:"1px solid #2a4030",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-              <span style={{fontSize:8,color:"#3a8050",fontFamily:C.mono}}>{i+1}</span>
-            </div>
-            <div><div style={{fontSize:12,fontWeight:500}}>{ex.name}</div><div style={{fontSize:10,color:C.dim}}>{ex.sets}</div></div>
-          </div>
-        ))}
-      </div>
-
-      {editing&&(
-        <div style={{position:"fixed",inset:0,background:"#000b",display:"flex",alignItems:"center",justifyContent:"center",zIndex:200,padding:20}}>
-          <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:16,padding:24,width:"100%",maxWidth:360}}>
-            <div style={{fontFamily:C.mono,fontSize:11,color:C.accent,letterSpacing:2,marginBottom:16}}>UPDATE STATS</div>
-            {[["weight","Weight (lbs)"],["bodyFat","Body Fat %"],["waist","Waist (inches)"],["restingHR","Resting HR (bpm)"],["hrv","HRV (ms)"]].map(([k,label])=>(
-              <div key={k} style={{marginBottom:12}}>
-                <div style={{fontSize:11,color:C.sub,marginBottom:4}}>{label}</div>
-                <input value={form[k]} onChange={e=>setForm(f=>({...f,[k]:e.target.value}))} style={{width:"100%",background:"#0d1117",border:`1px solid ${C.border}`,borderRadius:8,padding:"8px 12px",color:C.text,fontSize:14}}/>
-              </div>
-            ))}
-            <div style={{display:"flex",gap:10,marginTop:16}}>
-              <button onClick={()=>setEditing(false)} style={{flex:1,padding:10,background:"#1a2030",border:"none",borderRadius:8,color:C.sub,cursor:"pointer"}}>Cancel</button>
-              <button onClick={saveEdit} style={{flex:1,padding:10,background:C.accent,border:"none",borderRadius:8,color:"#000",fontWeight:700,cursor:"pointer"}}>Save</button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+  const vw=document.getElementById('visceral-warn');
+  if(stats.visceralFat>=8){vw.style.display='block';vw.innerHTML='⚠️ Visceral Fat <b style="color:#ff6b33">'+stats.visceralFat+'</b> — borderline. Zone 2 cardio + low-carb are your fastest levers.';}
+  else vw.style.display='none';
 }
 
-function WorkoutPlan({sched}){
-  const [active,setActive]=useState(sched==="A"||sched==="B"?sched:"A");
-  const [expanded,setExpanded]=useState({});
-  const workout=active==="A"?STRENGTH_A:STRENGTH_B;
-  const toggle=k=>setExpanded(e=>({...e,[k]:!e[k]}));
-
-  const Card=({ex,sk,idx})=>{
-    const key=sk+idx;const isOpen=expanded[key];
-    return(
-      <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:10,marginBottom:8,overflow:"hidden"}}>
-        <button onClick={()=>toggle(key)} style={{width:"100%",background:"none",border:"none",padding:"12px 14px",cursor:"pointer",display:"flex",alignItems:"center",gap:10,textAlign:"left"}}>
-          <div style={{width:26,height:26,borderRadius:"50%",background:"#1a2030",border:"2px solid #2a3040",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-            <span style={{fontFamily:C.mono,fontSize:9,color:C.dim}}>{idx+1}</span>
+// ── WORKOUT PLAN ───────────────────────────────────────────────────────────
+let activeWorkout='A';
+function switchWorkout(w){
+  activeWorkout=w;
+  document.getElementById('btn-stra').classList.toggle('active',w==='A');
+  document.getElementById('btn-strb').classList.toggle('active',w==='B');
+  renderWorkout();
+}
+function renderWorkout(){
+  const wk=WORKOUTS[activeWorkout];
+  document.getElementById('workout-focus').textContent=wk.focus;
+  let html='';
+  const sections=[['WARM-UP',wk.warmup,'wu'],['MAIN WORK',wk.exercises,'ex'],['CORE / APT',wk.core,'core']];
+  sections.forEach(([label,list,pfx])=>{
+    html+=`<div class="section-title">${label}</div>`;
+    list.forEach((ex,i)=>{
+      const key=activeWorkout+pfx+i;
+      const setsLabel=typeof ex.sets==='number'?`${ex.sets}×${ex.reps}`:ex.sets||ex.reps;
+      html+=`<div class="ex-card">
+        <button class="ex-header" onclick="toggleEx('${key}')">
+          <div class="ex-num">${i+1}</div>
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:500;color:#e8e8f0">${ex.name}</div>
+            <div class="mono" style="font-size:10px;color:#555;margin-top:2px">${setsLabel} · ${ex.band}</div>
           </div>
-          <div style={{flex:1}}>
-            <div style={{fontSize:13,fontWeight:500}}>{ex.name}</div>
-            <div style={{fontSize:10,color:C.dim,fontFamily:C.mono,marginTop:2}}>{typeof ex.sets==="number"?`${ex.sets}×${ex.reps}`:ex.sets||ex.reps} · {ex.band}</div>
-          </div>
-          <span style={{color:"#444",fontSize:12}}>{isOpen?"▲":"▼"}</span>
+          <span style="color:#444;font-size:12px" id="arr-${key}">▼</span>
         </button>
-        {isOpen&&(
-          <div style={{padding:"0 14px 14px",borderTop:`1px solid ${C.border}`}}>
-            <div style={{fontSize:12,color:"#aaa",lineHeight:1.6,marginTop:10,marginBottom:6}}>{ex.cue}</div>
-            {ex.muscles&&<div style={{fontSize:10,color:C.dim,fontFamily:C.mono}}>↗ {ex.muscles}</div>}
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  return(
-    <div style={{padding:"20px 16px 0"}}>
-      <div style={{display:"flex",background:C.card,borderRadius:10,padding:3,marginBottom:16,border:`1px solid ${C.border}`}}>
-        {["A","B"].map(w=>(
-          <button key={w} onClick={()=>setActive(w)} style={{flex:1,padding:"8px",background:active===w?C.accent:"none",border:"none",borderRadius:8,cursor:"pointer",fontFamily:C.mono,fontSize:12,color:active===w?"#000":C.dim,fontWeight:active===w?700:400,letterSpacing:1}}>
-            STR {w} — {w==="A"?"UPPER":"LOWER"}
-          </button>
-        ))}
-      </div>
-      <div style={{fontSize:12,color:C.sub,marginBottom:16}}>{workout.focus}</div>
-      {[["WARM-UP",workout.warmup,"wu"],["MAIN WORK",workout.exercises,"ex"],["CORE / APT",workout.core,"core"]].map(([label,list,sk])=>(
-        <div key={sk}>
-          <div style={{fontFamily:C.mono,fontSize:10,color:C.accent,letterSpacing:2,marginBottom:10,marginTop:label==="WARM-UP"?0:16}}>{label}</div>
-          {list.map((ex,i)=><Card key={sk+i} ex={ex} sk={sk} idx={i}/>)}
+        <div class="ex-body" id="body-${key}">
+          <div style="font-size:12px;color:#aaa;line-height:1.6;margin-top:10px;margin-bottom:6px">${ex.cue}</div>
+          ${ex.muscles?`<div class="mono" style="font-size:10px;color:#555">↗ ${ex.muscles}</div>`:''}
         </div>
-      ))}
-    </div>
-  );
+      </div>`;
+    });
+  });
+  document.getElementById('workout-content').innerHTML=html;
+}
+function toggleEx(key){
+  const body=document.getElementById('body-'+key);
+  const arr=document.getElementById('arr-'+key);
+  const isOpen=body.classList.toggle('open');
+  arr.textContent=isOpen?'▲':'▼';
 }
 
-function WorkoutLog({logs,onSaveLogs,sched}){
+// ── LOG ────────────────────────────────────────────────────────────────────
+function renderLog(){
+  const sched=getSchedule(todayStr());
   const today=todayStr();
-  const tl=logs[today]||{sets:{},notes:"",done:{}};
-  const workout=sched==="A"?STRENGTH_A:sched==="B"?STRENGTH_B:null;
-  if(!workout)return(
-    <div style={{padding:"60px 20px",textAlign:"center"}}>
-      <div style={{fontSize:40,marginBottom:12}}>💤</div>
-      <div style={{color:C.dim,fontSize:14}}>No strength workout today.</div>
-      <div style={{color:"#444",fontSize:12,marginTop:6}}>Today is a {(sched||"rest").toLowerCase()} day.</div>
-    </div>
-  );
+  const el=document.getElementById('log-content');
+  if(sched!=='A'&&sched!=='B'){
+    el.innerHTML=`<div style="padding:60px 20px;text-align:center"><div style="font-size:40px;margin-bottom:12px">💤</div><div style="color:#555;font-size:14px">No strength workout today.</div><div style="color:#444;font-size:12px;margin-top:6px">Today is a ${(sched||'rest').toLowerCase()} day.</div></div>`;
+    return;
+  }
+  const wk=WORKOUTS[sched];
+  const tl=logs[today]||{sets:{},notes:'',done:{}};
+  const allEx=[...wk.exercises,...wk.core];
+  let html=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+    <div><div class="mono" style="font-size:9px;color:#00d4ff;letter-spacing:2px">TODAY'S LOG</div>
+    <div style="font-size:16px;font-weight:600;margin-top:2px">Strength ${sched}</div></div>
+    <div class="mono" style="font-size:9px;color:#555">${today}</div>
+  </div>`;
+  allEx.forEach(ex=>{
+    const ns=typeof ex.sets==='number'?ex.sets:3;
+    const done=(tl.done||{})[ex.name];
+    const sets=(tl.sets||{})[ex.name]||[];
+    html+=`<div style="background:${done?'#0d1a0d':'#111118'};border:1px solid ${done?'#1a3020':'#1a2030'};border-radius:10px;padding:14px;margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+        <div><div style="font-size:13px;font-weight:500">${ex.name}</div>
+        <div class="mono" style="font-size:10px;color:#555;margin-top:2px">${ns}×${ex.reps} · ${ex.band}</div></div>
+        <button class="done-btn ${done?'done':''}" onclick="toggleDone('${ex.name.replace(/'/g,"\\'")}','${sched}')">${done?'✓ Done':'Mark Done'}</button>
+      </div>`;
+    for(let si=0;si<ns;si++){
+      const sv=sets[si]||{reps:'',note:''};
+      html+=`<div class="log-row">
+        <div class="log-snum">S${si+1}</div>
+        <input class="input" style="flex:1;font-size:12px;padding:6px 10px" placeholder="Reps" value="${sv.reps}" oninput="updateSet('${ex.name.replace(/'/g,"\\'")}',${si},'reps',this.value,'${sched}')"/>
+        <input class="input" style="flex:2;font-size:12px;padding:6px 10px" placeholder="Note" value="${sv.note}" oninput="updateSet('${ex.name.replace(/'/g,"\\'")}',${si},'note',this.value,'${sched}')"/>
+      </div>`;
+    }
+    html+='</div>';
+  });
+  html+=`<div style="margin-top:8px;margin-bottom:20px">
+    <div class="label">SESSION NOTES</div>
+    <textarea class="input" style="min-height:80px;padding:12px;border-radius:10px" placeholder="How did it feel? PRs? Issues?" oninput="updateNotes(this.value,'${sched}')">${tl.notes||''}</textarea>
 
-  const allEx=[...workout.exercises,...workout.core];
-
-  const updateSet=async(name,si,field,val)=>{
-    const u={...logs};
-    if(!u[today])u[today]={sets:{},notes:"",done:{}};
-    if(!u[today].sets[name])u[today].sets[name]=[];
-    if(!u[today].sets[name][si])u[today].sets[name][si]={reps:"",note:""};
-    u[today].sets[name][si][field]=val;
-    await onSaveLogs(u);
-  };
-  const toggleDone=async name=>{
-    const u={...logs};
-    if(!u[today])u[today]={sets:{},notes:"",done:{}};
-    if(!u[today].done)u[today].done={};
-    u[today].done[name]=!u[today].done[name];
-    await onSaveLogs(u);
-  };
-  const updateNotes=async val=>{
-    const u={...logs};
-    if(!u[today])u[today]={sets:{},notes:"",done:{}};
-    u[today].notes=val;
-    await onSaveLogs(u);
-  };
-
-  return(
-    <div style={{padding:"20px 16px 0"}}>
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
-        <div>
-          <div style={{fontFamily:C.mono,fontSize:9,color:C.accent,letterSpacing:2}}>TODAY'S LOG</div>
-          <div style={{fontSize:16,fontWeight:600,marginTop:2}}>Strength {sched}</div>
-        </div>
-        <div style={{fontFamily:C.mono,fontSize:9,color:C.dim}}>{today}</div>
-      </div>
-      {allEx.map(ex=>{
-        const ns=typeof ex.sets==="number"?ex.sets:3;
-        const done=tl.done?.[ex.name];
-        const sets=tl.sets?.[ex.name]||[];
-        return(
-          <div key={ex.name} style={{background:done?"#0d1a0d":C.card,border:`1px solid ${done?"#1a3020":C.border}`,borderRadius:10,padding:14,marginBottom:10}}>
-            <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10}}>
-              <div>
-                <div style={{fontSize:13,fontWeight:500}}>{ex.name}</div>
-                <div style={{fontSize:10,color:C.dim,fontFamily:C.mono,marginTop:2}}>{ns}×{ex.reps} · {ex.band}</div>
-              </div>
-              <button onClick={()=>toggleDone(ex.name)} style={{padding:"4px 10px",background:done?"#1a3020":"#1a2030",border:`1px solid ${done?"#3a8050":"#2a3040"}`,borderRadius:6,cursor:"pointer",color:done?"#3a8050":C.dim,fontSize:11}}>
-                {done?"✓ Done":"Mark Done"}
-              </button>
-            </div>
-            {Array.from({length:ns}).map((_,si)=>(
-              <div key={si} style={{display:"flex",gap:8,marginBottom:6,alignItems:"center"}}>
-                <div style={{fontFamily:C.mono,fontSize:9,color:C.dim,width:16}}>S{si+1}</div>
-                <input placeholder="Reps" value={sets[si]?.reps||""} onChange={e=>updateSet(ex.name,si,"reps",e.target.value)} style={{flex:1,background:"#0d1117",border:`1px solid ${C.border}`,borderRadius:6,padding:"6px 10px",color:C.text,fontSize:12}}/>
-                <input placeholder="Note" value={sets[si]?.note||""} onChange={e=>updateSet(ex.name,si,"note",e.target.value)} style={{flex:2,background:"#0d1117",border:`1px solid ${C.border}`,borderRadius:6,padding:"6px 10px",color:C.text,fontSize:12}}/>
-              </div>
-            ))}
-          </div>
-        );
-      })}
-      <div style={{marginTop:8,marginBottom:20}}>
-        <div style={{fontFamily:C.mono,fontSize:9,color:C.dim,letterSpacing:2,marginBottom:6}}>SESSION NOTES</div>
-        <textarea value={tl.notes||""} onChange={e=>updateNotes(e.target.value)} placeholder="How did it feel? PRs? Issues?" style={{width:"100%",background:C.card,border:`1px solid ${C.border}`,borderRadius:10,padding:12,color:C.text,fontSize:13,minHeight:80}}/>
-      </div>
-    </div>
-  );
+  </div>`;
+  el.innerHTML=html;
 }
 
-function ProgressTab({progress,stats}){
-  const data=(progress||[]).map(p=>({...p,date:(p.date||"").slice(5)}));
-  return(
-    <div style={{padding:"20px 16px 0"}}>
-      <div style={{fontFamily:C.mono,fontSize:10,color:C.accent,letterSpacing:2,marginBottom:16}}>PROGRESS</div>
-      {data.length<2?(
-        <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:12,padding:24,textAlign:"center",marginBottom:16}}>
-          <div style={{fontSize:36,marginBottom:10}}>📊</div>
-          <div style={{color:C.dim,fontSize:13}}>Not enough data yet.</div>
-          <div style={{color:"#444",fontSize:11,marginTop:6}}>Update stats from Dashboard to start tracking.</div>
-        </div>
-      ):(
-        <>
-          {[["WEIGHT (LBS)","weight","#00d4ff","wg"],[" BODY FAT %","bodyFat","#ff6b33","bfg"]].map(([label,key,color,gid])=>(
-            <div key={key} style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:12,padding:"16px 4px 16px 0",marginBottom:12}}>
-              <div style={{fontFamily:C.mono,fontSize:9,color:C.dim,letterSpacing:2,paddingLeft:16,marginBottom:10}}>{label}</div>
-              <ResponsiveContainer width="100%" height={130}>
-                <AreaChart data={data}>
-                  <defs><linearGradient id={gid} x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={color} stopOpacity={0.2}/><stop offset="95%" stopColor={color} stopOpacity={0}/></linearGradient></defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1a2030"/>
-                  <XAxis dataKey="date" stroke="#333" tick={{fill:"#555",fontSize:9}}/>
-                  <YAxis stroke="#333" tick={{fill:"#555",fontSize:9}} domain={["auto","auto"]}/>
-                  <Tooltip contentStyle={{background:C.card,border:`1px solid ${C.border}`,borderRadius:8,fontSize:12}}/>
-                  <Area type="monotone" dataKey={key} stroke={color} strokeWidth={2} fill={`url(#${gid})`} dot={{fill:color,r:3}}/>
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          ))}
-        </>
-      )}
-      <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:12,padding:16}}>
-        <div style={{fontFamily:C.mono,fontSize:9,color:C.dim,letterSpacing:2,marginBottom:12}}>TARGETS</div>
-        {[["Body Fat",stats?.bodyFat+"%","15%"],["Weight",stats?.weight+" lbs","~135 lbs"],["Visceral Fat",stats?.visceralFat,"< 7"]].map(([label,cur,target])=>(
-          <div key={label} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"8px 0",borderBottom:`1px solid ${C.border}`}}>
-            <div style={{fontSize:13}}>{label}</div>
-            <div style={{display:"flex",gap:8,alignItems:"center"}}>
-              <span style={{fontFamily:C.mono,fontSize:12}}>{cur}</span>
-              <span style={{color:"#333"}}>›</span>
-              <span style={{fontFamily:C.mono,fontSize:12,color:C.accent}}>{target}</span>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+function toggleDone(name,sched){
+const today=todayStr();
+if(!logs[today])logs[today]={sets:{},notes:’’,done:{}};
+if(!logs[today].done)logs[today].done={};
+logs[today].done[name]=!logs[today].done[name];
+store.set(‘logs’,logs);
+renderLog();
+}
+function updateSet(name,si,field,val,sched){
+const today=todayStr();
+if(!logs[today])logs[today]={sets:{},notes:’’,done:{}};
+if(!logs[today].sets[name])logs[today].sets[name]=[];
+if(!logs[today].sets[name][si])logs[today].sets[name][si]={reps:’’,note:’’};
+logs[today].sets[name][si][field]=val;
+store.set(‘logs’,logs);
+}
+function updateNotes(val,sched){
+const today=todayStr();
+if(!logs[today])logs[today]={sets:{},notes:’’,done:{}};
+logs[today].notes=val;
+store.set(‘logs’,logs);
 }
 
-function SettingsTab({settings,onSave,stats}){
-  const [url,setUrl]=useState(settings.webhookUrl||"");
-  const [saved,setSaved]=useState(false);
-  const [open,setOpen]=useState("connect");
+// ── PROGRESS CHARTS ────────────────────────────────────────────────────────
+function renderProgress(){
+renderChart(‘chart-weight’,‘WEIGHT (LBS)’,‘weight’,’#00d4ff’);
+renderChart(‘chart-bf’,‘BODY FAT %’,‘bodyFat’,’#ff6b33’);
+const tl=document.getElementById(‘targets-list’);
+const tdata=[[‘Body Fat’,stats.bodyFat+’%’,‘15%’],[‘Weight’,stats.weight+’ lbs’,‘~135 lbs’],[‘Visceral Fat’,stats.visceralFat,’< 7’]];
+tl.innerHTML=tdata.map(([l,c,t])=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #1a2030">
+<div style="font-size:13px">${l}</div>
+<div style="display:flex;gap:8px;align-items:center">
+<span class="mono" style="font-size:12px">${c}</span>
+<span style="color:#333">›</span>
+<span class="mono" style="font-size:12px;color:#00d4ff">${t}</span>
+</div>
 
-  const save=async()=>{await onSave({...settings,webhookUrl:url});setSaved(true);setTimeout(()=>setSaved(false),2000);};
-
-  const Sec=({id,title,children})=>{
-    const isOpen=open===id;
-    return(
-      <div style={{background:C.card,border:`1px solid ${isOpen?C.accent+"33":C.border}`,borderRadius:12,marginBottom:10,overflow:"hidden"}}>
-        <button onClick={()=>setOpen(isOpen?null:id)} style={{width:"100%",background:"none",border:"none",padding:"14px 16px",cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-          <div style={{fontFamily:C.mono,fontSize:9,color:isOpen?C.accent:C.dim,letterSpacing:2}}>{title}</div>
-          <span style={{color:"#444",fontSize:11}}>{isOpen?"▲":"▼"}</span>
-        </button>
-        {isOpen&&<div style={{padding:"0 16px 16px",borderTop:`1px solid ${C.border}`}}>{children}</div>}
-      </div>
-    );
-  };
-
-  const Step=({n,text,sub})=>(
-    <div style={{display:"flex",gap:10,marginBottom:10,alignItems:"flex-start"}}>
-      <div style={{minWidth:20,height:20,borderRadius:"50%",background:"#0d2030",border:`1px solid ${C.accent}33`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:8,color:C.accent,fontFamily:C.mono,marginTop:1,flexShrink:0}}>{n}</div>
-      <div>
-        <div style={{fontSize:11,color:"#aaa",lineHeight:1.6}}>{text}</div>
-        {sub&&<div style={{fontSize:10,color:C.dim,marginTop:2,lineHeight:1.5}}>{sub}</div>}
-      </div>
-    </div>
-  );
-
-  return(
-    <div style={{padding:"20px 16px 0"}}>
-      <div style={{fontFamily:C.mono,fontSize:10,color:C.accent,letterSpacing:2,marginBottom:16}}>SETTINGS</div>
-
-      <Sec id="connect" title="PIPEDREAM URL">
-        <div style={{marginTop:12}}>
-          <div style={{fontSize:11,color:"#666",lineHeight:1.6,marginBottom:12}}>Paste your Pipedream webhook URL. The Sync button on Dashboard uses this.</div>
-          <input value={url} onChange={e=>setUrl(e.target.value)} placeholder="https://your-endpoint.m.pipedream.net/..." style={{width:"100%",background:"#0d1117",border:`1px solid ${C.border}`,borderRadius:8,padding:"10px 12px",color:C.text,fontSize:12,marginBottom:10}}/>
-          <button onClick={save} style={{width:"100%",padding:10,background:saved?"#1a3020":C.accent,border:"none",borderRadius:8,color:saved?"#3a8050":"#000",fontWeight:700,cursor:"pointer",fontSize:13,fontFamily:C.mono}}>
-            {saved?"✓ SAVED":"SAVE URL"}
-          </button>
-          {settings.lastSync&&<div style={{fontSize:10,color:"#444",marginTop:8,textAlign:"center"}}>Last sync: {settings.lastSync}</div>}
-        </div>
-      </Sec>
-
-      <Sec id="pipedream" title="STEP 1 — PIPEDREAM SETUP">
-        <div style={{marginTop:12}}>
-          <div style={{fontSize:11,color:"#666",lineHeight:1.6,marginBottom:12}}>Free at <b style={{color:C.accent}}>pipedream.com</b>. When asked, choose <b style={{color:"#fff"}}>"Building automations"</b>.</div>
-          <Step n={1} text="pipedream.com → sign up → New Project → New → Workflow"/>
-          <Step n={2} text='Trigger: "HTTP / Webhook" → Generate URL → copy it' sub="You'll paste this URL in the Shortcut."/>
-          <Step n={3} text='+ step → "Data Stores" → Set Record' sub='Store: "health_data" · Key: "latest" · Value: {{steps.trigger.event.body}}'/>
-          <Step n={4} text="+ step → HTTP Response → Body: {{steps.data_store.$return_value}}" sub="Allows Sync button to read data back."/>
-          <Step n={5} text="Deploy (top right). Done."/>
-        </div>
-      </Sec>
-
-      <Sec id="shortcut" title="STEP 2 — BUILD THE SHORTCUT">
-        <div style={{marginTop:12}}>
-          <div style={{fontSize:11,color:"#666",lineHeight:1.6,marginBottom:12}}>Shortcuts app → <b style={{color:"#fff"}}>+</b> → name it <b style={{color:"#fff"}}>"Sync Health to FORGE"</b></div>
-          <Step n={1} text='Get Contents of Health → Weight → Most Recent → Last Day' sub='Rename variable "weight"'/>
-          <Step n={2} text="Body Fat % → Average → Last Day" sub='Rename "bodyFat"'/>
-          <Step n={3} text="Resting Heart Rate → Average → Last Day" sub='Rename "restingHR"'/>
-          <Step n={4} text="Heart Rate Variability → Average → Last Day" sub='Rename "hrv"'/>
-          <Step n={5} text="Step Count → Sum → Last Day" sub='Rename "steps"'/>
-          <Step n={6} text="Active Energy Burned → Sum → Last Day" sub='Rename "activeCalories"'/>
-          <Step n={7} text="Dictionary — add all 6 variables as keys + syncedAt → Current Date"/>
-          <Step n={8} text="Get Contents of URL" sub="URL: Pipedream URL · Method: POST · Content-Type: application/json · Body: JSON → your Dictionary"/>
-          <Step n={9} text='Optional notification: "Health synced to FORGE ✓"'/>
-          <Step n={10} text="Tap Done. Run once manually to test."/>
-        </div>
-      </Sec>
-
-      <Sec id="automations" title="STEP 3 — 3 AUTOMATIONS">
-        <div style={{marginTop:12}}>
-          <div style={{fontSize:11,color:"#666",lineHeight:1.6,marginBottom:12}}>Shortcuts → Automation tab → + for each. Always set <b style={{color:"#fff"}}>Run Immediately = ON</b>.</div>
-          {[
-            {label:"MORNING",steps:["Trigger: Time of Day → 8:00 AM Daily","Action: Run Shortcut → Sync Health to FORGE","Run Immediately: ON"]},
-            {label:"AFTER WEIGHING",steps:["Trigger: App → Is Closed → iHome app","Action: Run Shortcut → Sync Health to FORGE","Run Immediately: ON","(If iHome not listed, use Time of Day)"]},
-            {label:"AFTER WORKOUT",steps:["Trigger: Workout → Ends → Any","Action: Run Shortcut → Sync Health to FORGE","Run Immediately: ON"]},
-          ].map(({label,steps})=>(
-            <div key={label} style={{background:"#0d1117",border:`1px solid ${C.border}`,borderRadius:8,padding:12,marginBottom:10}}>
-              <div style={{fontFamily:C.mono,fontSize:9,color:C.accent,letterSpacing:1.5,marginBottom:8}}>{label}</div>
-              {steps.map((s,i)=><div key={i} style={{fontSize:11,color:s.startsWith("(")?C.dim:"#aaa",lineHeight:1.6,paddingLeft:8,borderLeft:`2px solid ${s.startsWith("(")?C.border:C.accent+"22"}`,marginBottom:4}}>{s}</div>)}
-            </div>
-          ))}
-        </div>
-      </Sec>
-
-      <Sec id="homescreen" title="ADD TO HOME SCREEN">
-        <div style={{marginTop:12}}>
-          <Step n={1} text="Open this page in Safari (not Chrome)"/>
-          <Step n={2} text="Tap the Share button (box with arrow up)"/>
-          <Step n={3} text='"Add to Home Screen" → "Add"'/>
-          <div style={{background:"#0d1a0d",border:"1px solid #1a3020",borderRadius:8,padding:10,fontSize:11,color:"#3a8050",lineHeight:1.6,marginTop:4}}>Opens full-screen like a native app. Data saves locally on your device.</div>
-        </div>
-      </Sec>
-
-      <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:12,padding:14,marginBottom:20}}>
-        <div style={{fontFamily:C.mono,fontSize:9,color:C.dim,letterSpacing:2,marginBottom:6}}>DATA & CLAUDE UPDATES</div>
-        <div style={{fontSize:11,color:C.dim,lineHeight:1.7}}>All logs and stats save locally in your browser. Claude can update your workout plan or stats from your conversations — just ask.</div>
-        {stats&&<div style={{fontFamily:C.mono,fontSize:9,color:"#333",marginTop:8}}>Last stats update: {stats.updatedAt}</div>}
-      </div>
-    </div>
-  );
+  </div>`).join('');
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+function renderChart(containerId,label,key,color){
+const el=document.getElementById(containerId);
+if(progress.length<2){
+el.innerHTML=`<div class="label" style="padding-left:8px">${label}</div><div style="text-align:center;padding:20px;color:#555;font-size:12px">Not enough data yet — update stats from Dashboard.</div>`;
+return;
+}
+const data=progress.filter(p=>p[key]!=null);
+if(data.length<2){el.innerHTML=`<div class="label" style="padding-left:8px">${label}</div><div style="text-align:center;padding:20px;color:#555;font-size:12px">No data yet.</div>`;return;}
+const W=el.offsetWidth||340,H=130,padL=36,padR=12,padT=10,padB=28;
+const vals=data.map(d=>d[key]);
+const minV=Math.min(…vals)*0.98,maxV=Math.max(…vals)*1.02;
+const xScale=i=>(padL+(W-padL-padR)*i/(data.length-1));
+const yScale=v=>(padT+(H-padT-padB)*(1-(v-minV)/(maxV-minV)));
+let pts=data.map((d,i)=>`${xScale(i).toFixed(1)},${yScale(d[key]).toFixed(1)}`).join(’ ‘);
+const first=`${xScale(0).toFixed(1)},${H-padB}`;
+const last=`${xScale(data.length-1).toFixed(1)},${H-padB}`;
+const xLabels=data.filter((*,i)=>i===0||i===data.length-1||i===Math.floor(data.length/2)).map((d,*,arr)=>{
+const idx=data.indexOf(d);
+return `<text x="${xScale(idx).toFixed(1)}" y="${H-padB+16}" text-anchor="middle" fill="#555" font-size="9" font-family="DM Mono">${d.date.slice(5)}</text>`;
+});
+const yTicks=[minV,(minV+maxV)/2,maxV].map(v=>`<text x="${padL-4}" y="${(yScale(v)+4).toFixed(1)}" text-anchor="end" fill="#555" font-size="9" font-family="DM Mono">${v.toFixed(1)}</text><line x1="${padL}" y1="${yScale(v).toFixed(1)}" x2="${W-padR}" y2="${yScale(v).toFixed(1)}" stroke="#1a2030" stroke-width="1"/>`);
+const dots=data.map((d,i)=>`<circle cx="${xScale(i).toFixed(1)}" cy="${yScale(d[key]).toFixed(1)}" r="3" fill="${color}"/>`).join(’’);
+const id=‘grad-’+key;
+el.innerHTML=`<div class="label" style="padding-left:16px;margin-bottom:8px">${label}</div> <svg width="${W}" height="${H}" style="display:block"> <defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"> <stop offset="5%" stop-color="${color}" stop-opacity="0.25"/> <stop offset="95%" stop-color="${color}" stop-opacity="0"/> </linearGradient></defs> ${yTicks.join('')} <polygon points="${first} ${pts} ${last}" fill="url(#${id})"/> <polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2"/> ${dots} ${xLabels.join('')} </svg>`;
+}
+
+// ── SETTINGS ───────────────────────────────────────────────────────────────
+function renderSettings(){
+document.getElementById(‘webhook-input’).value=settings.webhookUrl||’’;
+document.getElementById(‘last-sync-label’).textContent=settings.lastSync?‘Last sync: ‘+settings.lastSync:’’;
+document.getElementById(‘last-update-label’).textContent=stats.updatedAt?‘Last stats update: ‘+stats.updatedAt:’’;
+}
+function saveUrl(){
+settings.webhookUrl=document.getElementById(‘webhook-input’).value;
+store.set(‘settings’,settings);
+const btn=document.getElementById(‘save-url-btn’);
+btn.textContent=‘✓ SAVED’;btn.style.background=’#1a3020’;btn.style.color=’#3a8050’;
+setTimeout(()=>{btn.textContent=‘SAVE URL’;btn.style.background=’#00d4ff’;btn.style.color=’#000’;},2000);
+}
+function toggleSec(id){
+const body=document.getElementById(‘body-’+id);
+const arr=document.getElementById(‘arr-’+id);
+const hdr=body.previousElementSibling;
+const isOpen=body.classList.toggle(‘open’);
+arr.textContent=isOpen?‘▲’:‘▼’;
+hdr.classList.toggle(‘open’,isOpen);
+}
+
+// ── EDIT MODAL ─────────────────────────────────────────────────────────────
+function openEdit(){
+document.getElementById(‘e-weight’).value=stats.weight;
+document.getElementById(‘e-bf’).value=stats.bodyFat;
+document.getElementById(‘e-waist’).value=stats.waist||’’;
+document.getElementById(‘e-hr’).value=stats.restingHR;
+document.getElementById(‘e-hrv’).value=stats.hrv;
+document.getElementById(‘edit-modal’).classList.add(‘open’);
+}
+function closeEdit(){document.getElementById(‘edit-modal’).classList.remove(‘open’);}
+function saveEdit(){
+const w=parseFloat(document.getElementById(‘e-weight’).value);
+const bf=parseFloat(document.getElementById(‘e-bf’).value);
+const wa=parseFloat(document.getElementById(‘e-waist’).value)||null;
+const hr=parseFloat(document.getElementById(‘e-hr’).value);
+const hrv=parseFloat(document.getElementById(‘e-hrv’).value);
+if(w)stats.weight=w;if(bf)stats.bodyFat=bf;stats.waist=wa;if(hr)stats.restingHR=hr;if(hrv)stats.hrv=hrv;
+stats.updatedAt=todayStr();
+store.set(‘stats’,stats);
+progress.push({date:todayStr(),weight:stats.weight,bodyFat:stats.bodyFat,waist:stats.waist});
+store.set(‘progress’,progress);
+closeEdit();
+renderDashboard();
+}
+
+// ── SYNC ───────────────────────────────────────────────────────────────────
+async function doSync(){
+const msg=document.getElementById(‘sync-msg’);
+if(!settings.webhookUrl){msg.style.display=‘block’;msg.style.color=’#ff6b6b’;msg.textContent=‘No URL configured in Settings.’;return;}
+msg.style.display=‘block’;msg.style.color=’#00d4ff’;msg.textContent=‘Syncing…’;
+try{
+const res=await fetch(settings.webhookUrl);
+if(!res.ok)throw new Error(‘HTTP ‘+res.status);
+const data=await res.json();
+Object.assign(stats,data);stats.updatedAt=todayStr();
+store.set(‘stats’,stats);
+progress.push({date:todayStr(),weight:stats.weight,bodyFat:stats.bodyFat,waist:stats.waist||null});
+store.set(‘progress’,progress);
+settings.lastSync=new Date().toLocaleString();
+store.set(‘settings’,settings);
+msg.textContent=‘✓ Synced!’;
+renderDashboard();
+}catch(e){msg.style.color=’#ff6b6b’;msg.textContent=’Sync failed: ’+e.message;}
+setTimeout(()=>{msg.style.display=‘none’;},4000);
+}
+
+// ── INIT ───────────────────────────────────────────────────────────────────
+(function init(){
+const sched=getSchedule(todayStr());
+activeWorkout=(sched===‘A’||sched===‘B’)?sched:‘A’;
+initHeader();
+renderDashboard();
+renderWorkout();
+})();
 </script>
+
 </body>
 </html>
